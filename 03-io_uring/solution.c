@@ -12,7 +12,6 @@
 #include <sys/ioctl.h>
 #include <liburing.h>
 #include <stdlib.h>
-#include <block/ioctl.c>
 
 #define QUEUE_DEPTH	64
 #define BLOCK_SIZE	(32*1024)
