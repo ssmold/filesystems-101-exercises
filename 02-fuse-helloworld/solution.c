@@ -29,7 +29,7 @@ static int getattr_impl(const char *path, struct stat *st) {
 }
 
 static int readdir_impl(const char *path, void *buffer, fuse_fill_dir_t filler,
-		off_t, struct fuse_file_info *) {
+		off_t offset, struct fuse_file_info *fi) {
 
 	filler(buffer, ".", NULL, 0);
 	filler(buffer, "..", NULL, 0);
