@@ -195,7 +195,7 @@ static int flock_impl(const char *path __attribute__((unused)),
 	return -EROFS;
 }
 
-static int ioctl_impl (const char * path __attribute__((unused)), unsigned int cmd __attribute__((unused)), void *arg __attribute__((unused)),
+static int ioctl_impl (const char * path __attribute__((unused)), int cmd __attribute__((unused)), void *arg __attribute__((unused)),
 	      struct fuse_file_info * fi __attribute__((unused)), unsigned int flags __attribute__((unused)), void *data __attribute__((unused))) {
 	return -EROFS;
 }
