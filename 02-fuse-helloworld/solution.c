@@ -223,7 +223,7 @@ static int lock_impl(const char *path __attribute__((unused)),
 }
 
 static int fsyncdir_impl(const char *path __attribute__((unused)),
-		int n __attribute__((unused)), struct fuse_file_info *fi) {
+		int n __attribute__((unused)), struct fuse_file_info *fi __attribute__((unused))) {
 	return -EROFS;
 }
 
