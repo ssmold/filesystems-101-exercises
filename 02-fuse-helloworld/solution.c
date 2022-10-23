@@ -91,10 +91,6 @@ static int create_impl(const char *path __attribute__((unused)),
 	return -EROFS;
 }
 
-static void destroy_impl(void *path __attribute__((unused))) {
-	return -EROFS;
-}
-
 static int removexattr_impl(const char *path __attribute__((unused)),
 		const char *buffer __attribute__((unused))) {
 	return -EROFS;
@@ -128,7 +124,7 @@ static int symlink_impl(const char *path_from __attribute__((unused)),
 
 static int rename_impl(const char *path_from __attribute__((unused)),
 		const char *path_to __attribute__((unused)),
-		int n __attribute__((unused))) {
+		unsigned int n __attribute__((unused))) {
 	return -EROFS;
 }
 
@@ -140,9 +136,9 @@ static int link_impl(const char *path_from __attribute__((unused)),
 static const struct fuse_operations hellofs_ops = { .getattr = getattr_impl,
 		.readdir = readdir_impl, .read = read_impl, .write = write_impl,
 		.mknod = mknod_impl, .mkdir = mkdir_impl, .create = create_impl,
-		.destroy = destroy_impl, .removexattr = removexattr_impl, .setxattr =
-				setxattr_impl, .truncate = truncate_impl, .rmdir = rmdir_impl,
-		.symlink = symlink_impl, .rename = rename_impl, .link = link_impl };
+		.removexattr = removexattr_impl, .setxattr = setxattr_impl, .truncate =
+				truncate_impl, .rmdir = rmdir_impl, .symlink = symlink_impl,
+		.rename = rename_impl, .link = link_impl };
 
 int helloworld(const char *mntp) {
 	char *argv[] = { "exercise", "-f", (char*) mntp, NULL };
