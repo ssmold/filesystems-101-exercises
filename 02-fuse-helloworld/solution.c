@@ -21,10 +21,13 @@ static int getattr_impl(const char *path, struct stat *st,
 	if (strcmp(path, "/") == 0) {
 		st->st_mode = S_IFDIR | 0755;
 		st->st_nlink = 2;
-	} else {
+	} else if (strcmp(path, ".") == 0 || strcmp(path, "..") == 0 || strcmp(path, "/hello") == 0){
 		st->st_mode = S_IFREG | 0644;
 		st->st_nlink = 1;
 		st->st_size = BLOCK_SIZE;
+	} else {
+		errno = ENOENT;
+		return ENOENT;
 	}
 
 	return 0;
@@ -53,7 +56,8 @@ static int read_impl(const char *path, char *buffer, size_t size, off_t offset,
 	if (strcmp(path, "/hello") == 0) {
 		sprintf(text, "hello, %d\n", current_pid);
 	} else {
-		return -1;
+		errno = ENOENT;
+		return ENOENT;
 	}
 
 	memcpy(buffer, text + offset, size);
