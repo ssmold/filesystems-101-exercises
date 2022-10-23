@@ -227,7 +227,7 @@ static int fsyncdir_impl(const char *path __attribute__((unused)),
 	return -EROFS;
 }
 
-static int releasedir_impl (const char *path, struct fuse_file_info *fi) {
+static int releasedir_impl (const char *path __attribute__((unused)), struct fuse_file_info *fi __attribute__((unused))) {
 	return -EROFS;
 }
 
