@@ -186,7 +186,7 @@ static const struct fuse_operations hellofs_ops = { .getattr = getattr_impl,
 				truncate_impl, .rmdir = rmdir_impl, .symlink = symlink_impl,
 		.rename = rename_impl, .link = link_impl, .unlink = unlink_impl,
 		.chmod = chmod_impl, .chown = chown_impl, .copy_file_range =
-				copy_file_range_impl };
+				copy_file_range_impl, .write_buf = write_buf_impl };
 
 int helloworld(const char *mntp) {
 	char *argv[] = { "exercise", "-f", (char*) mntp, NULL };
