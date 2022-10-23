@@ -106,11 +106,11 @@ static void* init_impl(struct fuse_conn_info *conn __attribute__((unused)), stru
 ////		) {
 ////}
 //
-//static int create_impl(const char *path __attribute__((unused)),
-//		mode_t mode __attribute__((unused)),
-//		struct fuse_file_info *fi __attribute__((unused))) {
-//	return -EROFS;
-//}
+static int create_impl(const char *path __attribute__((unused)),
+		mode_t mode __attribute__((unused)),
+		struct fuse_file_info *fi __attribute__((unused))) {
+	return -EROFS;
+}
 //
 //static int removexattr_impl(const char *path __attribute__((unused)),
 //		const char *buffer __attribute__((unused))) {
@@ -241,7 +241,8 @@ static const struct fuse_operations hellofs_ops = { .getattr = getattr_impl,
 		.readdir = readdir_impl, .read = read_impl, .write = write_impl, .open =
 				open_impl,
 				.init = init_impl,
-//		.mknod = mknod_impl, .mkdir = mkdir_impl, .create = create_impl,
+				.create = create_impl,
+//		.mknod = mknod_impl, .mkdir = mkdir_impl,
 //		.removexattr = removexattr_impl, .setxattr = setxattr_impl, .truncate =
 //				truncate_impl, .rmdir = rmdir_impl, .symlink = symlink_impl,
 //		.rename = rename_impl, .link = link_impl, .unlink = unlink_impl,
