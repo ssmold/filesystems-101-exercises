@@ -19,11 +19,11 @@ static int getattr_impl(const char *path, struct stat *st,
 	st->st_mtime = time( NULL);
 
 	if (strcmp(path, "/") == 0) {
-		st->st_mode = S_IFDIR | 0755;
+		st->st_mode = S_IFDIR | 0555;
 		st->st_nlink = 2;
 	} else if (strcmp(path, ".") == 0 || strcmp(path, "..") == 0
 			|| strcmp(path, "/hello") == 0) {
-		st->st_mode = S_IFREG | 0644;
+		st->st_mode = S_IFREG | 0444;
 		st->st_nlink = 1;
 		st->st_size = BLOCK_SIZE;
 	} else {
@@ -38,11 +38,12 @@ static int readdir_impl(const char *path, void *buffer, fuse_fill_dir_t filler,
 		struct fuse_file_info *fi __attribute__((unused)),
 		enum fuse_readdir_flags flags __attribute__((unused))) {
 
-	filler(buffer, ".", NULL, 0, FUSE_FILL_DIR_PLUS);
-	filler(buffer, "..", NULL, 0, FUSE_FILL_DIR_PLUS);
-
 	if (strcmp(path, "/") == 0) {
+		filler(buffer, ".", NULL, 0, FUSE_FILL_DIR_PLUS);
+		filler(buffer, "..", NULL, 0, FUSE_FILL_DIR_PLUS);
 		filler(buffer, "hello", NULL, 0, FUSE_FILL_DIR_PLUS);
+	} else {
+		return -ENOENT;
 	}
 
 	return 0;
@@ -63,8 +64,6 @@ static int read_impl(const char *path, char *buffer, size_t size, off_t offset,
 	return strlen(text) - offset;
 }
 
-
-
 static int write_impl(const char *path __attribute__((unused)),
 		const char *buffer __attribute__((unused)),
 		size_t size __attribute__((unused)),
@@ -73,7 +72,8 @@ static int write_impl(const char *path __attribute__((unused)),
 	return -EROFS;
 }
 
-static int open_impl(const char * path __attribute__((unused)), struct fuse_file_info * fi) {
+static int open_impl(const char *path __attribute__((unused)),
+		struct fuse_file_info *fi) {
 	if ((fi->flags & O_ACCMODE) != O_RDONLY)
 		return -EROFS;
 
@@ -228,9 +228,8 @@ static int open_impl(const char * path __attribute__((unused)), struct fuse_file
 //}
 
 static const struct fuse_operations hellofs_ops = { .getattr = getattr_impl,
-		.readdir = readdir_impl, .read = read_impl,
-		.write = write_impl,
-		.open = open_impl,
+		.readdir = readdir_impl, .read = read_impl, .write = write_impl, .open =
+				open_impl,
 //		.mknod = mknod_impl, .mkdir = mkdir_impl, .create = create_impl,
 //		.removexattr = removexattr_impl, .setxattr = setxattr_impl, .truncate =
 //				truncate_impl, .rmdir = rmdir_impl, .symlink = symlink_impl,
