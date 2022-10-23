@@ -8,6 +8,8 @@
 #include <stdlib.h>
 #include <fuse.h>
 #include <errno.h>
+#include <sys/stat.h>
+
 
 static const int BLOCK_SIZE = 4096;
 
@@ -53,7 +55,7 @@ static int readdir_impl(const char *path, void *buffer, fuse_fill_dir_t filler,
 static int read_impl(const char *path, char *buffer, size_t size, off_t offset,
 		struct fuse_file_info *fi __attribute__((unused))) {
 	pid_t current_pid = fuse_get_context()->pid;
-	char text[50];
+	char text[128];
 
 	if (strcmp(path, "/hello") == 0) {
 		sprintf(text, "hello, %d\n", current_pid);
@@ -62,7 +64,10 @@ static int read_impl(const char *path, char *buffer, size_t size, off_t offset,
 	}
 
 	memcpy(buffer, text + offset, size);
-	return strlen(text) - offset;
+	if (offset < (int)strlen(text)) {
+		return (int)strlen(text) - offset;
+	}
+	return 0;
 }
 
 static int write_impl(const char *path __attribute__((unused)),
@@ -81,8 +86,7 @@ static int open_impl(const char *path __attribute__((unused)),
 	return 0;
 }
 
-static void* init_impl(struct fuse_conn_info *conn __attribute__((unused)), struct fuse_config *cfg __attribute__((unused)))
-{
+static void* init_impl(struct fuse_conn_info *conn __attribute__((unused)), struct fuse_config *cfg __attribute__((unused))) {
 	return NULL;
 }
 //
