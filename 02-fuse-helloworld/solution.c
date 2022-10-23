@@ -231,6 +231,10 @@ static int releasedir_impl (const char *path __attribute__((unused)), struct fus
 	return -EROFS;
 }
 
+static int fsync_impl (const char * path __attribute__((unused)), int n __attribute__((unused)), struct fuse_file_info * fi __attribute__((unused))) {
+	return -EROFS;
+}
+
 static const struct fuse_operations hellofs_ops = { .getattr = getattr_impl,
 		.readdir = readdir_impl, .read = read_impl, .write = write_impl,
 		.mknod = mknod_impl, .mkdir = mkdir_impl, .create = create_impl,
@@ -241,7 +245,7 @@ static const struct fuse_operations hellofs_ops = { .getattr = getattr_impl,
 				copy_file_range_impl, .write_buf = write_buf_impl, .fallocate =
 				fallocate_impl, .flock = flock_impl, .ioctl = ioctl_impl,
 		.bmap = bmap_impl, .utimens = utimens_impl, .lock = lock_impl,
-		.fsyncdir = fsyncdir_impl, .releasedir = releasedir_impl };
+		.fsyncdir = fsyncdir_impl, .releasedir = releasedir_impl, .fsync = fsync_impl };
 
 int helloworld(const char *mntp) {
 	char *argv[] = { "exercise", "-f", (char*) mntp, NULL };
