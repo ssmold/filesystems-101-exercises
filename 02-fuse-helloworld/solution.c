@@ -73,7 +73,7 @@ static int write_impl(const char *path __attribute__((unused)),
 	return -EROFS;
 }
 
-static int open_impl(const char * path, struct fuse_file_info * fi) {
+static int open_impl(const char * path __attribute__((unused)), struct fuse_file_info * fi) {
 	if ((fi->flags & O_ACCMODE) != O_RDONLY)
 		return -EROFS;
 
