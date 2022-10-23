@@ -62,25 +62,24 @@ static int read_impl(const char *path, char *buffer, size_t size, off_t offset,
 	memcpy(buffer, text + offset, size);
 	return strlen(text) - offset;
 }
-//
-//static int write_impl(const char *path __attribute__((unused)),
-//		const char *buffer __attribute__((unused)),
-//		size_t size __attribute__((unused)),
-//		off_t offset __attribute__((unused)),
-//		struct fuse_file_info *fi __attribute__((unused))) {
-//	errno = -EROFS;
-//	return -EROFS;
-//}
+
+
+
+static int write_impl(const char *path __attribute__((unused)),
+		const char *buffer __attribute__((unused)),
+		size_t size __attribute__((unused)),
+		off_t offset __attribute__((unused)),
+		struct fuse_file_info *fi __attribute__((unused))) {
+	return -EROFS;
+}
 //
 //static int mknod_impl(const char *name __attribute__((unused)),
 //		mode_t mode __attribute__((unused)), dev_t dev __attribute__((unused))) {
-//	errno = -EROFS;
 //	return -EROFS;
 //}
 //
 //static int mkdir_impl(const char *path __attribute__((unused)),
 //		mode_t mode __attribute__((unused))) {
-//	errno = -EROFS;
 //	return -EROFS;
 //}
 //
@@ -88,19 +87,16 @@ static int read_impl(const char *path, char *buffer, size_t size, off_t offset,
 ////		off_t offset __attribute__((unused)),
 ////		struct fuse_file_info *fi __attribute__((unused))
 ////		) {
-////	return -EROFS;
 ////}
 //
 //static int create_impl(const char *path __attribute__((unused)),
 //		mode_t mode __attribute__((unused)),
 //		struct fuse_file_info *fi __attribute__((unused))) {
-//	errno = -EROFS;
 //	return -EROFS;
 //}
 //
 //static int removexattr_impl(const char *path __attribute__((unused)),
 //		const char *buffer __attribute__((unused))) {
-//	errno = -EROFS;
 //	return -EROFS;
 //}
 //
@@ -108,57 +104,48 @@ static int read_impl(const char *path, char *buffer, size_t size, off_t offset,
 //		const char *buf __attribute__((unused)),
 //		const char *w_buf __attribute__((unused)),
 //		size_t size __attribute__((unused)), int n __attribute__((unused))) {
-//	errno = -EROFS;
 //	return -EROFS;
 //}
 //
 //static int truncate_impl(const char *path __attribute__((unused)),
 //		off_t offset __attribute__((unused)),
 //		struct fuse_file_info *fi __attribute__((unused))) {
-//	errno = -EROFS;
 //	return -EROFS;
 //}
 //
 //static int unlink_impl(const char *path __attribute__((unused))) {
-//	errno = -EROFS;
 //	return -EROFS;
 //}
 //
 //static int rmdir_impl(const char *path __attribute__((unused))) {
-//	errno = -EROFS;
 //	return -EROFS;
 //}
 //
 //static int symlink_impl(const char *path_from __attribute__((unused)),
 //		const char *path_to __attribute__((unused))) {
-//	errno = -EROFS;
 //	return -EROFS;
 //}
 //
 //static int rename_impl(const char *path_from __attribute__((unused)),
 //		const char *path_to __attribute__((unused)),
 //		unsigned int flags __attribute__((unused))) {
-//	errno = -EROFS;
 //	return -EROFS;
 //}
 //
 //static int link_impl(const char *path_from __attribute__((unused)),
 //		const char *path_to __attribute__((unused))) {
-//	errno = -EROFS;
 //	return -EROFS;
 //}
 //
 //static int chmod_impl(const char *path __attribute__((unused)),
 //		mode_t mode __attribute__((unused)),
 //		struct fuse_file_info *fi __attribute__((unused))) {
-//	errno = -EROFS;
 //	return -EROFS;
 //}
 //
 //static int chown_impl(const char *path __attribute__((unused)),
 //		uid_t uid __attribute__((unused)), gid_t gid __attribute__((unused)),
 //		struct fuse_file_info *fi __attribute__((unused))) {
-//	errno = -EROFS;
 //	return -EROFS;
 //}
 //
@@ -235,7 +222,7 @@ static int read_impl(const char *path, char *buffer, size_t size, off_t offset,
 
 static const struct fuse_operations hellofs_ops = { .getattr = getattr_impl,
 		.readdir = readdir_impl, .read = read_impl,
-//		.write = write_impl,
+		.write = write_impl,
 //		.mknod = mknod_impl, .mkdir = mkdir_impl, .create = create_impl,
 //		.removexattr = removexattr_impl, .setxattr = setxattr_impl, .truncate =
 //				truncate_impl, .rmdir = rmdir_impl, .symlink = symlink_impl,
