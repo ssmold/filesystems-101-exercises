@@ -195,22 +195,36 @@ static int flock_impl(const char *path __attribute__((unused)),
 	return -EROFS;
 }
 
-static int ioctl_impl (const char * path __attribute__((unused)), int cmd __attribute__((unused)), void *arg __attribute__((unused)),
-	      struct fuse_file_info * fi __attribute__((unused)), unsigned int flags __attribute__((unused)), void *data __attribute__((unused))) {
+static int ioctl_impl(const char *path __attribute__((unused)),
+		int cmd __attribute__((unused)), void *arg __attribute__((unused)),
+		struct fuse_file_info *fi __attribute__((unused)),
+		unsigned int flags __attribute__((unused)),
+		void *data __attribute__((unused))) {
 	return -EROFS;
 }
 
-static int bmap_impl (const char * path __attribute__((unused)), size_t blocksize __attribute__((unused)), uint64_t *idx __attribute__((unused))) {
+static int bmap_impl(const char *path __attribute__((unused)),
+		size_t blocksize __attribute__((unused)),
+		uint64_t *idx __attribute__((unused))) {
 	return -EROFS;
 }
 
-static int utimens_impl (const char * path __attribute__((unused)), const struct timespec tv[2] __attribute__((unused)),
-			 struct fuse_file_info *fi __attribute__((unused))) {
+static int utimens_impl(const char *path __attribute__((unused)),
+		const struct timespec tv[2] __attribute__((unused)),
+		struct fuse_file_info *fi __attribute__((unused))) {
 	return -EROFS;
 }
 
-static int lock_impl (const char * path __attribute__((unused)), struct fuse_file_info *fi __attribute__((unused)), int cmd __attribute__((unused)),
-	     struct flock *f __attribute__((unused))) {
+static int lock_impl(const char *path __attribute__((unused)),
+		struct fuse_file_info *fi __attribute__((unused)),
+		int cmd __attribute__((unused)),
+		struct flock *f __attribute__((unused))) {
+	return -EROFS;
+}
+
+static int fsyncdir_impl(const char *path __attribute__((unused)),
+		int n __attribute__((unused)),
+		struct fuse_file_info *fi __attribute__((unused))) {
 	return -EROFS;
 }
 
@@ -222,7 +236,9 @@ static const struct fuse_operations hellofs_ops = { .getattr = getattr_impl,
 		.rename = rename_impl, .link = link_impl, .unlink = unlink_impl,
 		.chmod = chmod_impl, .chown = chown_impl, .copy_file_range =
 				copy_file_range_impl, .write_buf = write_buf_impl, .fallocate =
-				fallocate_impl, .flock = flock_impl, .ioctl = ioctl_impl, .bmap = bmap_impl, .utimens = utimens_impl, .lock = lock_impl };
+				fallocate_impl, .flock = flock_impl, .ioctl = ioctl_impl,
+		.bmap = bmap_impl, .utimens = utimens_impl, .lock = lock_impl,
+		.fsyncdir = fsyncdir_impl, };
 
 int helloworld(const char *mntp) {
 	char *argv[] = { "exercise", "-f", (char*) mntp, NULL };
