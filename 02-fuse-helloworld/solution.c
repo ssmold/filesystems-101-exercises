@@ -109,9 +109,9 @@ static int truncate_impl(const char *path __attribute__((unused)),
 	return -EROFS;
 }
 
-//static int unlink_impl(const char *path __attribute__((unused))) {
-//	return -EROFS;
-//}
+static int unlink_impl(const char *path __attribute__((unused))) {
+	return -EROFS;
+}
 
 static int rmdir_impl(const char *path __attribute__((unused))) {
 	return -EROFS;
@@ -138,7 +138,7 @@ static const struct fuse_operations hellofs_ops = { .getattr = getattr_impl,
 		.mknod = mknod_impl, .mkdir = mkdir_impl, .create = create_impl,
 		.removexattr = removexattr_impl, .setxattr = setxattr_impl, .truncate =
 				truncate_impl, .rmdir = rmdir_impl, .symlink = symlink_impl,
-		.rename = rename_impl, .link = link_impl };
+		.rename = rename_impl, .link = link_impl, .unlink = unlink_impl };
 
 int helloworld(const char *mntp) {
 	char *argv[] = { "exercise", "-f", (char*) mntp, NULL };
