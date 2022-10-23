@@ -65,8 +65,8 @@ static int read_impl(const char *path, char *buffer, size_t size, off_t offset,
 	sprintf(text, "hello, %d\n", current_pid);
 
 	memcpy(buffer, text + offset, size);
-	if (offset < strlen(text)) {
-		return strlen(text) - offset;
+	if (offset < (int)strlen(text)) {
+		return (int)strlen(text) - offset;
 	}
 	return 0;
 }
