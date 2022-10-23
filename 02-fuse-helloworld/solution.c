@@ -86,9 +86,7 @@ static int open_impl(const char *path __attribute__((unused)),
 	return 0;
 }
 
-static void* init_impl(struct fuse_conn_info *conn __attribute__((unused)), struct fuse_config *cfg __attribute__((unused))) {
-	return NULL;
-}
+
 //
 //static int mknod_impl(const char *name __attribute__((unused)),
 //		mode_t mode __attribute__((unused)), dev_t dev __attribute__((unused))) {
@@ -240,7 +238,6 @@ static int create_impl(const char *path __attribute__((unused)),
 static const struct fuse_operations hellofs_ops = { .getattr = getattr_impl,
 		.readdir = readdir_impl, .read = read_impl, .write = write_impl, .open =
 				open_impl,
-				.init = init_impl,
 				.create = create_impl,
 //		.mknod = mknod_impl, .mkdir = mkdir_impl,
 //		.removexattr = removexattr_impl, .setxattr = setxattr_impl, .truncate =
