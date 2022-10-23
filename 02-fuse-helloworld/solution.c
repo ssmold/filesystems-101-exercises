@@ -68,18 +68,67 @@ static int write_impl(const char *path __attribute__((unused)),
 	return -EROFS;
 }
 
-static int mknod_impl(const char* name __attribute__((unused)),
+static int mknod_impl(const char *name __attribute__((unused)),
 		mode_t mode __attribute__((unused)), dev_t dev __attribute__((unused))) {
 	return -EROFS;
 }
 
-static int mkdir_impl(const char * path __attribute__((unused)), mode_t mode __attribute__((unused))) {
+static int mkdir_impl(const char *path __attribute__((unused)),
+		mode_t mode __attribute__((unused))) {
+	return -EROFS;
+}
+
+static int ftruncate_impl(...) {
+	return -EROFS;
+}
+
+static int create_impl(...) {
+	return -EROFS;
+}
+
+static int destroy_impl(...) {
+	return -EROFS;
+}
+
+static int removexattr_impl(...) {
+	return -EROFS;
+}
+
+static int setxattr_impl(...) {
+	return -EROFS;
+}
+
+static int truncate_impl(...) {
+	return -EROFS;
+}
+
+static int unlink_impl(...) {
+	return -EROFS;
+}
+
+static int rmdir_impl(...) {
+	return -EROFS;
+}
+
+static int symlink_impl(...) {
+	return -EROFS;
+}
+
+static int rename_impl(...) {
+	return -EROFS;
+}
+
+static int link_impl(...) {
 	return -EROFS;
 }
 
 static const struct fuse_operations hellofs_ops = { .getattr = getattr_impl,
 		.readdir = readdir_impl, .read = read_impl, .write = write_impl,
-		.mknod = mknod_impl, .mkdir = mkdir_impl, };
+		.mknod = mknod_impl, .mkdir = mkdir_impl, .ftruncate = ftruncate_impl,
+		.create = create_impl, .destroy = destroy_impl, .removexattr =
+				removexattr_impl, .setxattr = setxattr_impl, .truncate =
+				truncate_impl, .unlink = unlink_impl, .rmdir = rmdir_impl,
+		.symlink = symlink_impl, .rename = rename_impl, .link = link_impl };
 
 int helloworld(const char *mntp) {
 	char *argv[] = { "exercise", "-f", (char*) mntp, NULL };
