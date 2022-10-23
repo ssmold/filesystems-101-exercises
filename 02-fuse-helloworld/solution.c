@@ -11,7 +11,8 @@
 
 static const int BLOCK_SIZE = 4096;
 
-static int getattr_impl(const char *path, struct stat *st) {
+static int getattr_impl(const char *path, struct stat *st,
+		struct fuse_file_info *fi __attribute__((unused))) {
 	st->st_uid = getuid();
 	st->st_gid = getgid();
 	st->st_atime = time( NULL);
@@ -31,7 +32,7 @@ static int getattr_impl(const char *path, struct stat *st) {
 
 static int readdir_impl(const char *path, void *buffer, fuse_fill_dir_t filler,
 		off_t offset __attribute__((unused)),
-		struct fuse_file_info *fi __attribute__((unused))) {
+		struct fuse_file_info *fi __attribute__((unused)), enum fuse_readdir_flags flags __attribute__((unused)) ) {
 
 	filler(buffer, ".", NULL, 0, FUSE_FILL_DIR_PLUS);
 	filler(buffer, "..", NULL, 0, FUSE_FILL_DIR_PLUS);
@@ -58,7 +59,8 @@ static int read_impl(const char *path, char *buffer, size_t size, off_t offset,
 	return strlen(text) - offset;
 }
 
-static int write_impl(const char *path __attribute__((unused)), char* buffer __attribute__((unused)),
+static int write_impl(const char *path __attribute__((unused)),
+		const char *buffer __attribute__((unused)),
 		size_t size __attribute__((unused)),
 		off_t offset __attribute__((unused)),
 		struct fuse_file_info *fi __attribute__((unused))) {
