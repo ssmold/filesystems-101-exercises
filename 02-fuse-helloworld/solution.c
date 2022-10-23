@@ -7,6 +7,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <fuse.h>
+#include <errno.h>
 
 static const int BLOCK_SIZE = 4096;
 
@@ -42,7 +43,7 @@ static int readdir_impl(const char *path, void *buffer, fuse_fill_dir_t filler,
 }
 
 static int read_impl(const char *path, char *buffer, size_t size, off_t offset,
-		struct fuse_file_info *fi) {
+		struct fuse_file_info *fi __attribute__((unused))) {
 	pid_t current_pid = fuse_get_context()->pid;
 	char text[50];
 
@@ -56,7 +57,10 @@ static int read_impl(const char *path, char *buffer, size_t size, off_t offset,
 	return strlen(text) - offset;
 }
 
-static int write_impl(const char*, char*, size_t, off_t, struct fuse_file_info*) {
+static int write_impl(const char *path __attribute__((unused)), char*,
+		size_t size __attribute__((unused)),
+		off_t offset __attribute__((unused)),
+		struct fuse_file_info *fi __attribute__((unused))) {
 	return -EROFS;
 }
 
