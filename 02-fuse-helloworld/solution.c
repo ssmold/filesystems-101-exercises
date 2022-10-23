@@ -78,47 +78,60 @@ static int mkdir_impl(const char *path __attribute__((unused)),
 	return -EROFS;
 }
 
-static int ftruncate_impl(...) {
+static int ftruncate_impl(const char *path __attribute__((unused)),
+		off_t offset __attribute__((unused)),
+		struct fuse_file_info *fi __attribute__((unused))
+		) {
 	return -EROFS;
 }
 
-static int create_impl(...) {
+static int create_impl(const char *path __attribute__((unused)),
+		mode_t mode __attribute__((unused)),
+		struct fuse_file_info *fi __attribute__((unused))) {
 	return -EROFS;
 }
 
-static int destroy_impl(...) {
+static int destroy_impl(void *path __attribute__((unused))) {
 	return -EROFS;
 }
 
-static int removexattr_impl(...) {
+static int removexattr_impl(const char *path __attribute__((unused)),
+		const char *buffer __attribute__((unused))) {
 	return -EROFS;
 }
 
-static int setxattr_impl(...) {
+static int setxattr_impl(const char *path __attribute__((unused)),
+		const char *buf __attribute__((unused)),
+		const char *w_buf __attribute__((unused)),
+		size_t size __attribute__((unused)), int n __attribute__((unused))) {
 	return -EROFS;
 }
 
-static int truncate_impl(...) {
+static int truncate_impl(const char *path __attribute__((unused)),
+		off_t offset __attribute__((unused))) {
 	return -EROFS;
 }
 
-static int unlink_impl(...) {
+static int unlink_impl(const char *path __attribute__((unused))) {
 	return -EROFS;
 }
 
-static int rmdir_impl(...) {
+static int rmdir_impl(const char *path __attribute__((unused))) {
 	return -EROFS;
 }
 
-static int symlink_impl(...) {
+static int symlink_impl(const char *path_from __attribute__((unused)),
+		const char *path_to __attribute__((unused))) {
 	return -EROFS;
 }
 
-static int rename_impl(...) {
+static int rename_impl(const char *path_from __attribute__((unused)),
+		const char *path_to __attribute__((unused))) {
 	return -EROFS;
 }
 
-static int link_impl(...) {
+static int link_impl(const char *path_from __attribute__((unused)),
+		const char *path_to __attribute__((unused))) {
 	return -EROFS;
 }
 
