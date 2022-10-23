@@ -13,6 +13,7 @@ static const int BLOCK_SIZE = 4096;
 
 static int getattr_impl(const char *path, struct stat *st,
 		struct fuse_file_info *fi __attribute__((unused))) {
+
 	st->st_uid = getuid();
 	st->st_gid = getgid();
 	st->st_atime = time( NULL);
@@ -78,6 +79,11 @@ static int open_impl(const char *path __attribute__((unused)),
 		return -EROFS;
 
 	return 0;
+}
+
+static void* init_impl(struct fuse_conn_info *conn __attribute__((unused)), struct fuse_config *cfg __attribute__((unused)))
+{
+	return NULL;
 }
 //
 //static int mknod_impl(const char *name __attribute__((unused)),
@@ -230,6 +236,7 @@ static int open_impl(const char *path __attribute__((unused)),
 static const struct fuse_operations hellofs_ops = { .getattr = getattr_impl,
 		.readdir = readdir_impl, .read = read_impl, .write = write_impl, .open =
 				open_impl,
+				.init = init_impl,
 //		.mknod = mknod_impl, .mkdir = mkdir_impl, .create = create_impl,
 //		.removexattr = removexattr_impl, .setxattr = setxattr_impl, .truncate =
 //				truncate_impl, .rmdir = rmdir_impl, .symlink = symlink_impl,
