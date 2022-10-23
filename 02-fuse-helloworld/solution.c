@@ -78,12 +78,12 @@ static int mkdir_impl(const char *path __attribute__((unused)),
 	return -EROFS;
 }
 
-static int ftruncate_impl(const char *path __attribute__((unused)),
-		off_t offset __attribute__((unused)),
-		struct fuse_file_info *fi __attribute__((unused))
-		) {
-	return -EROFS;
-}
+//static int ftruncate_impl(const char *path __attribute__((unused)),
+//		off_t offset __attribute__((unused)),
+//		struct fuse_file_info *fi __attribute__((unused))
+//		) {
+//	return -EROFS;
+//}
 
 static int create_impl(const char *path __attribute__((unused)),
 		mode_t mode __attribute__((unused)),
@@ -91,7 +91,7 @@ static int create_impl(const char *path __attribute__((unused)),
 	return -EROFS;
 }
 
-static int destroy_impl(void *path __attribute__((unused))) {
+static void destroy_impl(void *path __attribute__((unused))) {
 	return -EROFS;
 }
 
@@ -108,13 +108,14 @@ static int setxattr_impl(const char *path __attribute__((unused)),
 }
 
 static int truncate_impl(const char *path __attribute__((unused)),
-		off_t offset __attribute__((unused))) {
+		off_t offset __attribute__((unused)),
+		struct fuse_file_info *fi __attribute__((unused))) {
 	return -EROFS;
 }
 
-static int unlink_impl(const char *path __attribute__((unused))) {
-	return -EROFS;
-}
+//static int unlink_impl(const char *path __attribute__((unused))) {
+//	return -EROFS;
+//}
 
 static int rmdir_impl(const char *path __attribute__((unused))) {
 	return -EROFS;
@@ -126,7 +127,8 @@ static int symlink_impl(const char *path_from __attribute__((unused)),
 }
 
 static int rename_impl(const char *path_from __attribute__((unused)),
-		const char *path_to __attribute__((unused))) {
+		const char *path_to __attribute__((unused)),
+		int n __attribute__((unused))) {
 	return -EROFS;
 }
 
@@ -137,10 +139,9 @@ static int link_impl(const char *path_from __attribute__((unused)),
 
 static const struct fuse_operations hellofs_ops = { .getattr = getattr_impl,
 		.readdir = readdir_impl, .read = read_impl, .write = write_impl,
-		.mknod = mknod_impl, .mkdir = mkdir_impl, .ftruncate = ftruncate_impl,
-		.create = create_impl, .destroy = destroy_impl, .removexattr =
-				removexattr_impl, .setxattr = setxattr_impl, .truncate =
-				truncate_impl, .unlink = unlink_impl, .rmdir = rmdir_impl,
+		.mknod = mknod_impl, .mkdir = mkdir_impl, .create = create_impl,
+		.destroy = destroy_impl, .removexattr = removexattr_impl, .setxattr =
+				setxattr_impl, .truncate = truncate_impl, .rmdir = rmdir_impl,
 		.symlink = symlink_impl, .rename = rename_impl, .link = link_impl };
 
 int helloworld(const char *mntp) {
