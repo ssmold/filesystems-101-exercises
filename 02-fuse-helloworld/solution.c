@@ -41,7 +41,6 @@ static int readdir_impl(const char *path, void *buffer, fuse_fill_dir_t filler,
 	return 0;
 }
 
-
 static int read_impl(const char *path, char *buffer, size_t size, off_t offset,
 		struct fuse_file_info *fi) {
 	pid_t current_pid = fuse_get_context()->pid;
@@ -57,8 +56,7 @@ static int read_impl(const char *path, char *buffer, size_t size, off_t offset,
 	return strlen(text) - offset;
 }
 
-static int write_impl(const char *path, char *buffer, size_t size, off_t offset,
-		struct fuse_file_info *fi) {
+static int write_impl(const char*, char*, size_t, off_t, struct fuse_file_info*) {
 	return -EROFS;
 }
 
