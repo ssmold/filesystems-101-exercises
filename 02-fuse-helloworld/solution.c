@@ -72,6 +72,13 @@ static int write_impl(const char *path __attribute__((unused)),
 		struct fuse_file_info *fi __attribute__((unused))) {
 	return -EROFS;
 }
+
+static int open_impl(const char * path, struct fuse_file_info * fi) {
+	if ((fi->flags & O_ACCMODE) != O_RDONLY)
+		return -EROFS;
+
+	return 0;
+}
 //
 //static int mknod_impl(const char *name __attribute__((unused)),
 //		mode_t mode __attribute__((unused)), dev_t dev __attribute__((unused))) {
@@ -223,6 +230,7 @@ static int write_impl(const char *path __attribute__((unused)),
 static const struct fuse_operations hellofs_ops = { .getattr = getattr_impl,
 		.readdir = readdir_impl, .read = read_impl,
 		.write = write_impl,
+		.open = open_impl,
 //		.mknod = mknod_impl, .mkdir = mkdir_impl, .create = create_impl,
 //		.removexattr = removexattr_impl, .setxattr = setxattr_impl, .truncate =
 //				truncate_impl, .rmdir = rmdir_impl, .symlink = symlink_impl,
