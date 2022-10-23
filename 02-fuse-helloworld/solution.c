@@ -21,7 +21,8 @@ static int getattr_impl(const char *path, struct stat *st,
 	if (strcmp(path, "/") == 0) {
 		st->st_mode = S_IFDIR | 0755;
 		st->st_nlink = 2;
-	} else if (strcmp(path, ".") == 0 || strcmp(path, "..") == 0 || strcmp(path, "/hello") == 0){
+	} else if (strcmp(path, ".") == 0 || strcmp(path, "..") == 0
+			|| strcmp(path, "/hello") == 0) {
 		st->st_mode = S_IFREG | 0644;
 		st->st_nlink = 1;
 		st->st_size = BLOCK_SIZE;
@@ -174,21 +175,30 @@ static ssize_t copy_file_range_impl(const char *path_in __attribute__((unused)),
 
 }
 
-static int write_buf_impl (const char * path __attribute__((unused)), struct fuse_bufvec *buf __attribute__((unused)), off_t off __attribute__((unused)),
-			  struct fuse_file_info * fi __attribute__((unused))) {
+static int write_buf_impl(const char *path __attribute__((unused)),
+		struct fuse_bufvec *buf __attribute__((unused)),
+		off_t off __attribute__((unused)),
+		struct fuse_file_info *fi __attribute__((unused))) {
 	return -EROFS;
 }
 
+static int fallocate_impl(const char *path __attribute__((unused)),
+		int n __attribute__((unused)), off_t offt1 __attribute__((unused)),
+		off_t offt2 __attribute__((unused)),
+		struct fuse_file_info *fi __attribute__((unused))) {
+return -EROFS;
+}
+
 static const struct fuse_operations hellofs_ops = { .getattr = getattr_impl,
-		.readdir = readdir_impl, .read = read_impl, .write = write_impl,
-		.mknod = mknod_impl, .mkdir = mkdir_impl, .create = create_impl,
-		.removexattr = removexattr_impl, .setxattr = setxattr_impl, .truncate =
-				truncate_impl, .rmdir = rmdir_impl, .symlink = symlink_impl,
-		.rename = rename_impl, .link = link_impl, .unlink = unlink_impl,
-		.chmod = chmod_impl, .chown = chown_impl, .copy_file_range =
-				copy_file_range_impl, .write_buf = write_buf_impl };
+	.readdir = readdir_impl, .read = read_impl, .write = write_impl, .mknod =
+			mknod_impl, .mkdir = mkdir_impl, .create = create_impl,
+	.removexattr = removexattr_impl, .setxattr = setxattr_impl, .truncate =
+			truncate_impl, .rmdir = rmdir_impl, .symlink = symlink_impl,
+	.rename = rename_impl, .link = link_impl, .unlink = unlink_impl, .chmod =
+			chmod_impl, .chown = chown_impl, .copy_file_range =
+			copy_file_range_impl, .write_buf = write_buf_impl, .fallocate = fallocate_impl };
 
 int helloworld(const char *mntp) {
-	char *argv[] = { "exercise", "-f", (char*) mntp, NULL };
-	return fuse_main(3, argv, &hellofs_ops, NULL);
+char *argv[] = { "exercise", "-f", (char*) mntp, NULL };
+return fuse_main(3, argv, &hellofs_ops, NULL);
 }
