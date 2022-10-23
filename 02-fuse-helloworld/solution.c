@@ -195,6 +195,11 @@ static int flock_impl(const char *path __attribute__((unused)),
 	return -EROFS;
 }
 
+static int ioctl_impl (const char * path __attribute__((unused)), unsigned int cmd __attribute__((unused)), void *arg __attribute__((unused)),
+	      struct fuse_file_info * fi __attribute__((unused)), unsigned int flags __attribute__((unused)), void *data __attribute__((unused))) {
+	return -EROFS;
+}
+
 static const struct fuse_operations hellofs_ops = { .getattr = getattr_impl,
 		.readdir = readdir_impl, .read = read_impl, .write = write_impl,
 		.mknod = mknod_impl, .mkdir = mkdir_impl, .create = create_impl,
@@ -203,7 +208,7 @@ static const struct fuse_operations hellofs_ops = { .getattr = getattr_impl,
 		.rename = rename_impl, .link = link_impl, .unlink = unlink_impl,
 		.chmod = chmod_impl, .chown = chown_impl, .copy_file_range =
 				copy_file_range_impl, .write_buf = write_buf_impl, .fallocate =
-				fallocate_impl, .flock = flock_impl };
+				fallocate_impl, .flock = flock_impl, .ioctl = ioctl_impl };
 
 int helloworld(const char *mntp) {
 	char *argv[] = { "exercise", "-f", (char*) mntp, NULL };
