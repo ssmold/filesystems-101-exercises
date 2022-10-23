@@ -133,12 +133,23 @@ static int link_impl(const char *path_from __attribute__((unused)),
 	return -EROFS;
 }
 
+static int chmod_impl(const char *path __attribute__((unused)),
+		mode_t mode __attribute__((unused))) {
+	return -EROFS;
+}
+
+static int* chown_impl(const char *path __attribute__((unused)),
+		uid_t uid __attribute__((unused)), gid_t gid __attribute__((unused))) {
+	return -EROFS;
+}
+
 static const struct fuse_operations hellofs_ops = { .getattr = getattr_impl,
 		.readdir = readdir_impl, .read = read_impl, .write = write_impl,
 		.mknod = mknod_impl, .mkdir = mkdir_impl, .create = create_impl,
 		.removexattr = removexattr_impl, .setxattr = setxattr_impl, .truncate =
 				truncate_impl, .rmdir = rmdir_impl, .symlink = symlink_impl,
-		.rename = rename_impl, .link = link_impl, .unlink = unlink_impl };
+		.rename = rename_impl, .link = link_impl, .unlink = unlink_impl,
+		.chmod = chmod_impl, .chown = chown_impl };
 
 int helloworld(const char *mntp) {
 	char *argv[] = { "exercise", "-f", (char*) mntp, NULL };
