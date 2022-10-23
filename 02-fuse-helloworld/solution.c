@@ -173,6 +173,12 @@ static ssize_t copy_file_range_impl(const char *path_in __attribute__((unused)),
 	return -EROFS;
 
 }
+
+static int write_buf_impl (const char * path __attribute__((unused)), struct fuse_bufvec *buf __attribute__((unused)), off_t off __attribute__((unused)),
+			  struct fuse_file_info * fi __attribute__((unused))) {
+	return -EROFS;
+}
+
 static const struct fuse_operations hellofs_ops = { .getattr = getattr_impl,
 		.readdir = readdir_impl, .read = read_impl, .write = write_impl,
 		.mknod = mknod_impl, .mkdir = mkdir_impl, .create = create_impl,
