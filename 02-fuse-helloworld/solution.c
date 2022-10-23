@@ -223,8 +223,11 @@ static int lock_impl(const char *path __attribute__((unused)),
 }
 
 static int fsyncdir_impl(const char *path __attribute__((unused)),
-		int n __attribute__((unused)),
-		struct fuse_file_info *fi __attribute__((unused))) {
+		int n __attribute__((unused)), struct fuse_file_info *fi) {
+	return -EROFS;
+}
+
+static int releasedir_impl (const char *path, struct fuse_file_info *fi) {
 	return -EROFS;
 }
 
@@ -238,7 +241,7 @@ static const struct fuse_operations hellofs_ops = { .getattr = getattr_impl,
 				copy_file_range_impl, .write_buf = write_buf_impl, .fallocate =
 				fallocate_impl, .flock = flock_impl, .ioctl = ioctl_impl,
 		.bmap = bmap_impl, .utimens = utimens_impl, .lock = lock_impl,
-		.fsyncdir = fsyncdir_impl, };
+		.fsyncdir = fsyncdir_impl, .releasedir = releasedir_impl };
 
 int helloworld(const char *mntp) {
 	char *argv[] = { "exercise", "-f", (char*) mntp, NULL };
