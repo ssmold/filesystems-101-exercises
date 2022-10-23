@@ -138,7 +138,7 @@ static int chmod_impl(const char *path __attribute__((unused)),
 	return -EROFS;
 }
 
-static int* chown_impl(const char *path __attribute__((unused)),
+static int chown_impl(const char *path __attribute__((unused)),
 		uid_t uid __attribute__((unused)), gid_t gid __attribute__((unused)), struct fuse_file_info *fi __attribute__((unused))) {
 	return -EROFS;
 }
