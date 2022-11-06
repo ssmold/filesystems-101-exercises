@@ -52,7 +52,7 @@ int read_direct_blocks(unsigned int i_block, int img) {
 
         report_file(inode, type, file_name);
 
-         Move to the next entry
+        // Move to the next entry
         entry = (void *) entry + entry->rec_len;
         size += entry->rec_len;
     }
