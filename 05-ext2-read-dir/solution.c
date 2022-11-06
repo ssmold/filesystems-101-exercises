@@ -12,7 +12,7 @@
 unsigned int BLOCK_SIZE = 1024;
 unsigned int file_data_left;
 
-int process_direct_blocks(unsigned int i_block, int img) {
+int read_direct_blocks(unsigned int i_block, int img) {
     unsigned int offset = i_block * BLOCK_SIZE;
     unsigned int bytes_to_read = file_data_left < BLOCK_SIZE ? file_data_left : BLOCK_SIZE;
     unsigned char direct_block_buffer[BLOCK_SIZE];
@@ -54,6 +54,43 @@ int process_direct_blocks(unsigned int i_block, int img) {
         // Move to the next entry
         entry = (void *) entry + entry->rec_len;
         size += entry->rec_len;
+    }
+
+    return 0;
+}
+
+int read_indirect_blocks(unsigned int i_block, int img) {
+    unsigned int inode_buffer[BLOCK_SIZE];
+    unsigned int offset = i_block * BLOCK_SIZE;
+    int ret = pread(img, &inode_buffer, BLOCK_SIZE, offset);
+    if (ret < 0) {
+        return -errno;
+    }
+    unsigned int indirect_inode_size = BLOCK_SIZE / 4;
+    for (unsigned int i = 0; i < indirect_inode_size; i++) {
+        ret = read_direct_blocks(inode_buffer[i], img);
+        if (ret < 0) {
+            return -errno;
+        }
+    }
+
+    return 0;
+}
+
+int read_double_indirect_blocks(unsigned int i_block, int img) {
+    unsigned int indirect_inode_buffer[BLOCK_SIZE];
+    unsigned int offset = i_block * BLOCK_SIZE;
+    int ret = pread(img, &indirect_inode_buffer, BLOCK_SIZE, offset);
+    if (ret < 0) {
+        return -errno;
+    }
+
+    unsigned int indirect_inode_size = BLOCK_SIZE / 4;
+    for (unsigned int i = 0; i < indirect_inode_size; i++) {
+        ret = read_indirect_blocks(indirect_inode_buffer[i], img, out);
+        if (ret < 0) {
+            return -errno;
+        }
     }
 
     return 0;
@@ -101,11 +138,11 @@ int dump_dir(int img, int inode_nr) {
     // Copy data
     for (int i = 0; i < EXT2_N_BLOCKS; i++) {
         if (i < EXT2_NDIR_BLOCKS) {
-            //copy_direct_blocks(inode.i_block[i], img, out);
+            read_direct_blocks(inode.i_block[i], img);
         } else if (i == EXT2_IND_BLOCK) {
-            //copy_indirect_blocks(inode.i_block[i], img, out);
+            read_indirect_blocks(inode.i_block[i], img);
         } else if (i == EXT2_DIND_BLOCK) {
-            //copy_double_indirect_blocks(inode.i_block[i], img, out);
+            read_double_indirect_blocks(inode.i_block[i], img);
         }
     }
     return 0;
