@@ -28,11 +28,11 @@ int dump_file(int img, int inode_nr, int out) {
 
     struct ext2_group_desc group_desc;
     unsigned int group_count = 1 + (super.s_blocks_count - 1) / super.s_blocks_per_group;
-    unsigned int des_list_size = group_count * sizeof(struct ext2_group_descr);
+    unsigned int des_list_size = group_count * sizeof(struct ext2_group_desc);
     unsigned int group_desc_number = (inode_nr - 1) / super.s_inodes_per_group;
 
     ret = pread(img, &group_desc, sizeof(group_desc),
-          BOOT_BLOCK_SIZE + BLOCK_SIZE + group_desc_number * sizeof(ext2_group_desc);
+          BOOT_BLOCK_SIZE + BLOCK_SIZE + group_desc_number * sizeof(ext2_group_desc));
     if (ret < 0) {
         return -errno;
     }
