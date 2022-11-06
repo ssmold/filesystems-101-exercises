@@ -26,10 +26,10 @@ int read_direct_blocks(unsigned int i_block, int img) {
     unsigned int size = 0;
     struct ext2_dir_entry_2* entry = (struct ext2_dir_entry_2 *) direct_block_buffer;
     while (size < bytes_to_read) {
-        unsigned int inode = entry->inode;
-        if (inode == 0) {
-            break;
-        }
+//        unsigned int inode = entry->inode;
+//        if (inode == 0) {
+//            break;
+//        }
 
         // Get file name
         char file_name[EXT2_NAME_LEN + 1];
