@@ -25,7 +25,7 @@ int read_direct_blocks(unsigned int i_block, int img) {
 
     unsigned int size = 0;
     struct ext2_dir_entry_2* entry = (struct ext2_dir_entry_2 *) direct_block_buffer;
-    while (size < bytes_to_read) {
+//    while (size < bytes_to_read) {
         unsigned int inode = entry->inode;
         if (inode == 0) {
             break;
@@ -55,7 +55,7 @@ int read_direct_blocks(unsigned int i_block, int img) {
         // Move to the next entry
         entry = (void *) entry + entry->rec_len;
         size += entry->rec_len;
-    }
+//    }
 
     return 0;
 }
