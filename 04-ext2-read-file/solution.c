@@ -1,5 +1,4 @@
 #include <solution.h>
-//#include <linux/ext2_fs.h>
 #include <errno.h>
 #include <sys/types.h>
 #include <sys/uio.h>
@@ -21,7 +20,8 @@ int dump_file(int img, int inode_nr, int out)
     }
 
     // Get block size in bytes
-    unsigned int block_size = 1024 << super.s_log_block;
+    unsigned int block_size = EXT2_MIN_BLOCK_SIZE << super.s_log_block_size;
+
 
 
 
