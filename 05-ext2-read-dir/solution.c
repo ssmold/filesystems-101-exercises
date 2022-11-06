@@ -25,37 +25,37 @@ int read_direct_blocks(unsigned int i_block, int img) {
 
     unsigned int size = 0;
     struct ext2_dir_entry_2* entry = (struct ext2_dir_entry_2 *) direct_block_buffer;
-//    while (size < bytes_to_read) {
-        unsigned int inode = entry->inode;
-        if (inode == 0) {
-            break;
-        }
-
-        // Get file name
-        char file_name[EXT2_NAME_LEN + 1];
-        memcpy(file_name, entry->name, entry->name_len);
-        file_name[entry->name_len] = '\0';
-
-        // Get file type
-        unsigned int file_type = entry->file_type;
-        char type = ' ';
-        switch (file_type) {
-            case EXT2_FT_DIR:
-                type = 'd';
-                break;
-            case EXT2_FT_REG_FILE:
-                type = 'f';
-                break;
-            default:
-                return -errno;
-        }
-
-        report_file(inode, type, file_name);
-
-        // Move to the next entry
-        entry = (void *) entry + entry->rec_len;
+    while (size < bytes_to_read) {
+//        unsigned int inode = entry->inode;
+//        if (inode == 0) {
+//            break;
+//        }
+//
+//        // Get file name
+//        char file_name[EXT2_NAME_LEN + 1];
+//        memcpy(file_name, entry->name, entry->name_len);
+//        file_name[entry->name_len] = '\0';
+//
+//        // Get file type
+//        unsigned int file_type = entry->file_type;
+//        char type = ' ';
+//        switch (file_type) {
+//            case EXT2_FT_DIR:
+//                type = 'd';
+//                break;
+//            case EXT2_FT_REG_FILE:
+//                type = 'f';
+//                break;
+//            default:
+//                return -errno;
+//        }
+//
+//        report_file(inode, type, file_name);
+//
+//        // Move to the next entry
+//        entry = (void *) entry + entry->rec_len;
         size += entry->rec_len;
-//    }
+    }
 
     return 0;
 }
