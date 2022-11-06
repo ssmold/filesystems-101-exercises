@@ -9,12 +9,12 @@
 
 
 #define BOOT_BLOCK_SIZE 1024
-unsigned int BLOCK_SIZE = 1024;
-unsigned int file_data_left = 0;
+unsigned BLOCK_SIZE = 1024;
+unsigned file_data_left = 0;
 
-int read_direct_blocks(unsigned int i_block, int img) {
-    unsigned int offset = i_block * BLOCK_SIZE;
-    unsigned int bytes_to_read = file_data_left < BLOCK_SIZE ? file_data_left : BLOCK_SIZE;
+int read_direct_blocks(unsigned i_block, int img) {
+    unsigned offset = i_block * BLOCK_SIZE;
+    unsigned bytes_to_read = file_data_left < BLOCK_SIZE ? file_data_left : BLOCK_SIZE;
     unsigned char direct_block_buffer[BLOCK_SIZE];
 
     int ret = pread(img, &direct_block_buffer, bytes_to_read, offset);
@@ -23,13 +23,13 @@ int read_direct_blocks(unsigned int i_block, int img) {
         return -errno;
     }
 
-    unsigned int size = 0;
-    struct ext2_dir_entry_2* entry = (struct ext2_dir_entry_2 *) direct_block_buffer;
+    unsigned size = 0;
+    struct ext2_dir_entry_2 *entry = (struct ext2_dir_entry_2 *) direct_block_buffer;
     while (size < bytes_to_read) {
         entry = (void *) direct_block_buffer + size;
         size += entry->rec_len;
 
-        unsigned int inode = entry->inode;
+        unsigned inode = entry->inode;
         if (inode == 0) {
             break;
         }
@@ -40,7 +40,7 @@ int read_direct_blocks(unsigned int i_block, int img) {
         file_name[entry->name_len] = '\0';
 
         // Get file type
-        unsigned int file_type = entry->file_type;
+        unsigned file_type = entry->file_type;
         char type = ' ';
         switch (file_type) {
             case EXT2_FT_DIR:
@@ -59,15 +59,15 @@ int read_direct_blocks(unsigned int i_block, int img) {
     return 0;
 }
 
-int read_indirect_blocks(unsigned int i_block, int img) {
-    unsigned int inode_buffer[BLOCK_SIZE];
-    unsigned int offset = i_block * BLOCK_SIZE;
+int read_indirect_blocks(unsigned i_block, int img) {
+    unsigned inode_buffer[BLOCK_SIZE];
+    unsigned offset = i_block * BLOCK_SIZE;
     int ret = pread(img, &inode_buffer, BLOCK_SIZE, offset);
     if (ret < 0) {
         return -errno;
     }
-    unsigned int indirect_inode_size = BLOCK_SIZE / 4;
-    for (unsigned int i = 0; i < indirect_inode_size; i++) {
+    unsigned indirect_inode_size = BLOCK_SIZE / 4;
+    for (unsigned i = 0; i < indirect_inode_size; i++) {
         ret = read_direct_blocks(inode_buffer[i], img);
         if (ret < 0) {
             return -errno;
@@ -77,16 +77,17 @@ int read_indirect_blocks(unsigned int i_block, int img) {
     return 0;
 }
 
-int read_double_indirect_blocks(unsigned int i_block, int img) {
-    unsigned int indirect_inode_buffer[BLOCK_SIZE];
-    unsigned int offset = i_block * BLOCK_SIZE;
+int read_double_indirect_blocks(unsigned i_block, int img) {
+    unsigned indirect_inode_buffer[BLOCK_SIZE];
+    unsigned offset = i_block * BLOCK_SIZE;
     int ret = pread(img, &indirect_inode_buffer, BLOCK_SIZE, offset);
     if (ret < 0) {
         return -errno;
     }
 
-    unsigned int indirect_inode_size = BLOCK_SIZE / 4;
-    for (unsigned int i = 0; i < indirect_inode_size; i++) {
+    // Indirect block entirely consists of 4 byte entries
+    unsigned indirect_inode_size = BLOCK_SIZE / 4;
+    for (unsigned i = 0; i < indirect_inode_size; i++) {
         ret = read_indirect_blocks(indirect_inode_buffer[i], img);
         if (ret < 0) {
             return -errno;
@@ -99,7 +100,7 @@ int read_double_indirect_blocks(unsigned int i_block, int img) {
 int dump_dir(int img, int inode_nr) {
     // Get the ext2 superblock
     struct ext2_super_block super;
-    unsigned int offset = BOOT_BLOCK_SIZE;
+    unsigned offset = BOOT_BLOCK_SIZE;
     int ret = pread(img, &super, sizeof(super), offset);
     offset += sizeof(super);
     if (ret < 0) {
@@ -116,7 +117,7 @@ int dump_dir(int img, int inode_nr) {
 
     // Get the group descriptor by inode number
     struct ext2_group_desc group_desc;
-    unsigned int group_desc_number = (inode_nr - 1) / super.s_inodes_per_group;
+    unsigned group_desc_number = (inode_nr - 1) / super.s_inodes_per_group;
     offset = BOOT_BLOCK_SIZE + BLOCK_SIZE + group_desc_number * sizeof(struct ext2_group_desc);
     ret = pread(img, &group_desc, sizeof(group_desc), offset);
     if (ret < 0) {
@@ -125,7 +126,7 @@ int dump_dir(int img, int inode_nr) {
 
     // Get the required inode
     struct ext2_inode inode;
-    unsigned int inode_index = (inode_nr - 1) % super.s_inodes_per_group;
+    unsigned inode_index = (inode_nr - 1) % super.s_inodes_per_group;
     offset = group_desc.bg_inode_table * BLOCK_SIZE + (inode_index * super.s_inode_size);
     ret = pread(img, &inode, sizeof(inode), offset);
     if (ret < 0) {
