@@ -32,9 +32,9 @@ int read_direct_blocks(unsigned int i_block, int img) {
         }
 
         // Get file name
-//        char file_name[EXT2_NAME_LEN + 1];
-//        memcpy(file_name, entry->name, entry->name_len);
-//        file_name[entry->name_len] = '\0';
+        char file_name[EXT2_NAME_LEN + 1];
+        memcpy(file_name, entry->name, entry->name_len);
+        file_name[entry->name_len] = '\0';
 
         // Get file type
 //        unsigned int file_type = entry->file_type;
