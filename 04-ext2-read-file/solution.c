@@ -63,7 +63,7 @@ int dump_file(int img, int inode_nr, int out) {
         else if (i == EXT2_IND_BLOCK) {
             // copy_indirect_blocks();
         }
-        else if (i == EXT2_DIND_BLOCK)
+        else if (i == EXT2_DIND_BLOCK) {
             // copy_double_indirect_blocks();
         }
     }
