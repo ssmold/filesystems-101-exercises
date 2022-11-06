@@ -1,7 +1,65 @@
 #include <solution.h>
+#include <errno.h>
+#include <sys/types.h>
+#include <sys/uio.h>
+#include <unistd.h>
+#include <ext2fs/ext2fs.h>
+#include <stdint.h>
+#include <string.h>
 
-int dump_dir(int img, int inode_nr)
-{
+
+#define BOOT_BLOCK_SIZE 1024
+unsigned int BLOCK_SIZE = 1024;
+unsigned int file_data_left;
+
+int process_direct_blocks(unsigned int i_block, int img) {
+    unsigned int offset = i_block * BLOCK_SIZE;
+    unsigned int bytes_to_read = file_data_left < BLOCK_SIZE ? file_data_left : BLOCK_SIZE;
+    unsigned char direct_block_buffer[BLOCK_SIZE];
+
+    int ret = pread(img, &direct_block_buffer, bytes_to_read, offset);
+    file_data_left -= bytes_to_read;
+    if (ret < 0) {
+        return -errno;
+    }
+
+    unsigned int size = 0;
+    struct ext2_dir_entry_2* entry = (struct ext2_dir_entry_2 *) direct_block_buffer;
+    while (size < bytes_to_read) {
+        unsigned int inode = entry->inode;
+        if (inode == 0) {
+            break;
+        }
+
+        // Get file name
+        char file_name[EXT2_NAME_LEN + 1];
+        memcpy(file_name, entry->name, entry->name_len);
+        file_name[entry->name_len] = '\0';
+
+        // Get file type
+        unsigned int file_type = entry->file_type;
+        char type;
+        switch (file_type) {
+            case EXT2_FT_DIR:
+                type = 'd';
+                break;
+            case EXT2_FT_REG_FILE:
+                type = 'f';
+            default:
+                return -errno;
+        }
+
+        report_file(inode, type, file_name);
+
+        // Move to the next entry
+        entry = (void *) entry + entry->rec_len;
+        size += entry->rec_len;
+    }
+
+    return 0;
+}
+
+int dump_dir(int img, int inode_nr) {
     // Get the ext2 superblock
     struct ext2_super_block super;
     unsigned int offset = BOOT_BLOCK_SIZE;
@@ -41,14 +99,12 @@ int dump_dir(int img, int inode_nr)
     file_data_left = inode.i_size;
 
     // Copy data
-    for(int i = 0; i < EXT2_N_BLOCKS; i++) {
+    for (int i = 0; i < EXT2_N_BLOCKS; i++) {
         if (i < EXT2_NDIR_BLOCKS) {
             //copy_direct_blocks(inode.i_block[i], img, out);
-        }
-        else if (i == EXT2_IND_BLOCK) {
+        } else if (i == EXT2_IND_BLOCK) {
             //copy_indirect_blocks(inode.i_block[i], img, out);
-        }
-        else if (i == EXT2_DIND_BLOCK) {
+        } else if (i == EXT2_DIND_BLOCK) {
             //copy_double_indirect_blocks(inode.i_block[i], img, out);
         }
     }
