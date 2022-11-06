@@ -10,7 +10,7 @@
 
 #define BOOT_BLOCK_SIZE 1024
 unsigned int BLOCK_SIZE = 1024;
-unsigned int file_data_left;
+unsigned int file_data_left = 0;
 
 int read_direct_blocks(unsigned int i_block, int img) {
     unsigned int offset = i_block * BLOCK_SIZE;
