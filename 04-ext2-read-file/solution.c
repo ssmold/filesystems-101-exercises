@@ -13,7 +13,9 @@ int dump_file(int img, int inode_nr, int out) {
     (void) out;
 
     struct ext2_super_block super;
-    int ret = pread(img, &super, sizeof(super), BOOT_BLOCK_SIZE);
+    unsigned int offset = BOOT_BLOCK_SIZE;
+    int ret = pread(img, &super, sizeof(super), offset);
+    offset += sizeof(super);
     if (ret < 0) {
         return -errno;
     }
@@ -30,9 +32,16 @@ int dump_file(int img, int inode_nr, int out) {
 //    unsigned int group_count = 1 + (super.s_blocks_count - 1) / super.s_blocks_per_group;
 //    unsigned int des_list_size = group_count * sizeof(struct ext2_group_desc);
     unsigned int group_desc_number = (inode_nr - 1) / super.s_inodes_per_group;
+    offset = BOOT_BLOCK_SIZE + BLOCK_SIZE + group_desc_number * sizeof(struct ext2_group_desc);
+    ret = pread(img, &group_desc, sizeof(group_desc), offset);
+    if (ret < 0) {
+        return -errno;
+    }
 
-    ret = pread(img, &group_desc, sizeof(group_desc),
-          BOOT_BLOCK_SIZE + BLOCK_SIZE + group_desc_number * sizeof(struct ext2_group_desc));
+    struct ext2_inode inode;
+    unsigned int inode_index = (inode_nr - 1) % super.s_inodes_per_group;
+    offset = group_desc.bg_inode_table * BLOCK_SIZE + (inode_index * super.s_inode_size);
+    ret = pread(img, &inode, sizeof(inode), offset);
     if (ret < 0) {
         return -errno;
     }
