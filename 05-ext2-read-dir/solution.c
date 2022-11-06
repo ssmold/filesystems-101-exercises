@@ -26,6 +26,9 @@ int read_direct_blocks(unsigned int i_block, int img) {
     unsigned int size = 0;
     struct ext2_dir_entry_2* entry = (struct ext2_dir_entry_2 *) direct_block_buffer;
     while (size < bytes_to_read) {
+        entry = (void *) direct_block_buffer + size;
+        size += entry->rec_len;
+
         unsigned int inode = entry->inode;
         if (inode == 0) {
             break;
@@ -51,10 +54,6 @@ int read_direct_blocks(unsigned int i_block, int img) {
         }
 
         report_file(inode, type, file_name);
-
-        // Move to the next entry
-        entry = (void *) direct_block_buffer + size;
-        size += entry->rec_len;
     }
 
     return 0;
