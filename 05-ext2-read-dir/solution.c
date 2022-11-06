@@ -38,7 +38,7 @@ int read_direct_blocks(unsigned int i_block, int img) {
 
         // Get file type
         unsigned int file_type = entry->file_type;
-        char type;
+        char type = ' ';
         switch (file_type) {
             case EXT2_FT_DIR:
                 type = 'd';
