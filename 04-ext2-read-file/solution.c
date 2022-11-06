@@ -1,8 +1,10 @@
 #include <solution.h>
 //#include <linux/ext2_fs.h>
+#include <errno.h>
 #include <sys/types.h>
 #include <sys/uio.h>
 #include <unistd.h>
+#include <ext2fs/ext2fs.h>
 
 int dump_file(int img, int inode_nr, int out)
 {
