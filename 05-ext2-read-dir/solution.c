@@ -45,6 +45,7 @@ int read_direct_blocks(unsigned int i_block, int img) {
                 break;
             case EXT2_FT_REG_FILE:
                 type = 'f';
+                break;
             default:
                 return -errno;
         }
@@ -87,7 +88,7 @@ int read_double_indirect_blocks(unsigned int i_block, int img) {
 
     unsigned int indirect_inode_size = BLOCK_SIZE / 4;
     for (unsigned int i = 0; i < indirect_inode_size; i++) {
-        ret = read_indirect_blocks(indirect_inode_buffer[i], img, out);
+        ret = read_indirect_blocks(indirect_inode_buffer[i], img);
         if (ret < 0) {
             return -errno;
         }
