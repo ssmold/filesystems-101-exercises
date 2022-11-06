@@ -8,20 +8,23 @@
 
 #define BOOT_BLOCK_SIZE 1024
 unsigned int BLOCK_SIZE = 1024;
-
+unsigned int file_data_left;
 
 int copy_direct_blocks(unsigned int i_block, int img, int out) {
     unsigned int offset = i_block * BLOCK_SIZE;
     char buffer[BLOCK_SIZE];
-    int ret = pread(img, &buffer, BLOCK_SIZE, offset);
+    unsigned int bytes_to_copy = file_data_left < BLOCK_SIZE ? file_data_left : BLOCK_SIZE;
+    int ret = pread(img, &buffer, bytes_to_copy, offset);
     if (ret < 0) {
         return -errno;
     }
 
-    ret = write(out, buffer, BLOCK_SIZE);
+    ret = write(out, buffer, bytes_to_copy);
     if (ret < 0) {
         return -errno;
     }
+
+    file_data_left -= bytes_to_copy;
     return 0;
 }
 
@@ -92,7 +95,7 @@ int dump_file(int img, int inode_nr, int out) {
     if (ret < 0) {
         return -errno;
     }
-
+    file_data_left = inode.i_size;
     // Get all data blocks for current inode and copy data
     for(int i = 0; i < EXT2_N_BLOCKS; i++) {
         if (i < EXT2_NDIR_BLOCKS) {
