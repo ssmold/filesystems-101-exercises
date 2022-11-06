@@ -4,10 +4,13 @@
 #include <sys/uio.h>
 #include <unistd.h>
 #include <ext2fs/ext2fs.h>
+#include <stdint.h>
 
 #define BOOT_BLOCK_SIZE 1024
+unsigned int BLOCK_SIZE = 1024;
+unsigned int
 
-int copy_direct_blocks(unsigned int i_block, int img, int out, unsigned int BLOCK_SIZE) {
+int copy_direct_blocks(unsigned int i_block, int img, int out) {
     unsigned int offset = i_block * BLOCK_SIZE;
     char buffer[BLOCK_SIZE];
     int ret = pread(img, &buffer, BLOCK_SIZE, offset);
@@ -18,6 +21,40 @@ int copy_direct_blocks(unsigned int i_block, int img, int out, unsigned int BLOC
     ret = write(out, buffer, BLOCK_SIZE);
     if (ret < 0) {
         return -errno;
+    }
+    return 0;
+}
+
+int copy_indirect_blocks(unsigned int i_block, int img, int out) {
+    unsigned int inode_buffer[BLOCK_SIZE];
+    unsigned int offset = i_block * BLOCK_SIZE;
+    int ret = pread(img, &inode_buffer, BLOCK_SIZE, offset);
+    if (ret < 0) {
+        return -errno;
+    }
+    for (unsigned int i = 0; i < indirect_inode_size; i++) {
+        ret = copy_direct_blocks(inode_buffer[i], img, out);
+        if (ret < 0) {
+            return -errno;
+        }
+    }
+
+    return 0;
+}
+
+int copy_double_indirect_blocks(unsigned int i_block, int img, int out) {
+    unsigned int indirect_inode_buffer[BLOCK_SIZE];
+    unsigned int offset = i_block * BLOCK_SIZE;
+    int ret = pread(img, &indirect_inode_buffer, BLOCK_SIZE, offset);
+    if (ret < 0) {
+        return -errno;
+    }
+    unsigned int indirect_inode_size = BLOCK_SIZE / 4;
+    for (unsigned int i = 0; i < indirect_inode_size; i++) {
+        ret = copy_indirect_blocks(indirect_inode_buffer[i], img, out);
+        if (ret < 0) {
+            return -errno;
+        }
     }
     return 0;
 }
@@ -37,7 +74,7 @@ int dump_file(int img, int inode_nr, int out) {
     }
 
     // Get block size in bytes
-    unsigned int BLOCK_SIZE = EXT2_MIN_BLOCK_SIZE << super.s_log_block_size;
+    BLOCK_SIZE = EXT2_MIN_BLOCK_SIZE << super.s_log_block_size;
 
     struct ext2_group_desc group_desc;
     unsigned int group_desc_number = (inode_nr - 1) / super.s_inodes_per_group;
@@ -58,13 +95,13 @@ int dump_file(int img, int inode_nr, int out) {
     // Get all data blocks for current inode and copy data
     for(int i = 0; i < EXT2_N_BLOCKS; i++) {
         if (i < EXT2_NDIR_BLOCKS) {
-            copy_direct_blocks(inode.i_block[i], img, out, BLOCK_SIZE);
+            copy_direct_blocks(inode.i_block[i], img, out);
         }
         else if (i == EXT2_IND_BLOCK) {
-            // copy_indirect_blocks();
+            copy_indirect_blocks(inode.i_block[i], img, out);
         }
         else if (i == EXT2_DIND_BLOCK) {
-            // copy_double_indirect_blocks();
+            copy_double_indirect_blocks(inode.i_block[i], img, out);
         }
     }
     return 0;
