@@ -8,7 +8,7 @@
 
 #define BOOT_BLOCK_SIZE 1024
 unsigned int BLOCK_SIZE = 1024;
-unsigned int
+
 
 int copy_direct_blocks(unsigned int i_block, int img, int out) {
     unsigned int offset = i_block * BLOCK_SIZE;
@@ -32,6 +32,7 @@ int copy_indirect_blocks(unsigned int i_block, int img, int out) {
     if (ret < 0) {
         return -errno;
     }
+    unsigned int indirect_inode_size = BLOCK_SIZE / 4;
     for (unsigned int i = 0; i < indirect_inode_size; i++) {
         ret = copy_direct_blocks(inode_buffer[i], img, out);
         if (ret < 0) {
