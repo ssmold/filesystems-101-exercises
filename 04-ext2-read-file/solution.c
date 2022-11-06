@@ -11,7 +11,7 @@ int dump_file(int img, int inode_nr, int out)
 	(void) out;
 
     struct ext2_super_block super;
-    pread(img, &super, sizeof(super), 1024)
+    pread(img, &super, sizeof(super), 1024);
 
     // Check if the file is an ext2 image
     if (super.s_magic != EXT2_SUPER_MAGIC) {
