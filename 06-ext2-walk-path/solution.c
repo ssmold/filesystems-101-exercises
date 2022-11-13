@@ -183,7 +183,7 @@ int get_direct_blocks(unsigned i_block, int img) {
         }
 
         // Check if found file is required one
-        if (strcmp(fileName, file_name) == 0)) {
+        if ((strcmp(fileName, file_name) == 0)) {
             if (type == file_type) {
                 inode_numb = inode;
             } else {
