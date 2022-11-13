@@ -186,11 +186,10 @@ int get_direct_blocks(unsigned i_block, int img) {
         if ((strcmp(fileName, file_name) == 0)) {
             if (type == file_type) {
                 inode_numb = inode;
+            } else {
+                inode_numb = -2;
+                return -ENOTDIR;
             }
-//            else {
-//                inode_numb = -2;
-//                return -ENOTDIR;
-//            }
         }
     }
 
