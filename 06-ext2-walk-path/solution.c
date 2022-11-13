@@ -285,13 +285,15 @@ int dump_file(int img, const char *path, int out) {
     const char** dirName = NULL;
     unsigned length;
     int inodeNumb = EXT2_ROOT_INO;
-    char* name = (char *)malloc(sizeof(char) * 256);
+
+//    char* name = (char *)malloc(sizeof(char) * 256);
 
     while ((charPtr = get_next_dir_name(charPtr, &length, dirName))) {
-        stpncpy(name, *dirName, length);
+        stpncpy(file_name, *dirName, length);
+//        char name[FILENAME_MAX];
         name[length] = '\0';
 
-        file_name = name;
+//        file_name = name;
         file_type = 'd';
         inode_numb = -1;
 
@@ -317,6 +319,5 @@ int dump_file(int img, const char *path, int out) {
     inodeNumb = inode_numb;
     dump_file_content(img, inodeNumb, out);
 
-    free(name);
     return 0;
 }
