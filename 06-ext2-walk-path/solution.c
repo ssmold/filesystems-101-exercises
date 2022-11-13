@@ -282,7 +282,7 @@ int dump_file(int img, const char *path, int out) {
 	(void) out;
 
     const char* charPtr = path;
-    const char** dirName;
+    const char** dirName = NULL;
     unsigned length;
     int inodeNumb = EXT2_ROOT_INO;
     char* name = (char *)malloc(sizeof(char) * 256);
