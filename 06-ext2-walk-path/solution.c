@@ -234,7 +234,6 @@ int get_double_indirect_blocks(unsigned i_block, int img) {
 }
 
 int get_dir_inode(int img, int inode_nr) {
-    int ret;
     // Get the ext2 superblock
     struct ext2_super_block super;
     unsigned offset = BOOT_BLOCK_SIZE;
