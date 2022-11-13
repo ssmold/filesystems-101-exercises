@@ -175,13 +175,11 @@ int get_direct_blocks(unsigned i_block, int img) {
             case EXT2_FT_DIR:
                 type = 'd';
                 break;
-//            case EXT2_FT_REG_FILE:
-//                type = 'f';
-//                break;
-            default:
+            case EXT2_FT_REG_FILE:
                 type = 'f';
                 break;
-//                return -errno;
+            default:
+                return -EINVAL;
         }
 
         // Check if found file is required one
@@ -189,7 +187,6 @@ int get_direct_blocks(unsigned i_block, int img) {
             if (type == file_type) {
                 inode_numb = inode;
             } else {
-//                inode_numb = -2;
                 return -ENOTDIR;
             }
         }
@@ -276,7 +273,7 @@ int get_dir_inode(int img, int inode_nr) {
     // Get the file size
     file_data_left = inode.i_size;
 
-    // Copy data
+    // Find inode of required file/dir
     for (int i = 0; i < EXT2_N_BLOCKS; i++) {
         if (i < EXT2_NDIR_BLOCKS) {
             ret = get_direct_blocks(inode.i_block[i], img);
