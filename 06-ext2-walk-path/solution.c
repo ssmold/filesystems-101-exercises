@@ -313,9 +313,6 @@ char* get_next_dir_name(const char* ptr) {
 }
 
 int dump_file(int img, const char *path, int out) {
-    if (path[0] != '/') {
-        return -ENOTDIR;
-    }
     img_fd = img;
 
     const char* charPtr = path;
@@ -336,10 +333,6 @@ int dump_file(int img, const char *path, int out) {
         if (inode_numb == -1) {
             return -ENOENT;
         }
-//        } else if (inode_numb == -2) {
-//            return -ENOTDIR;
-//        }
-
         inodeNumb = inode_numb;
     }
 
