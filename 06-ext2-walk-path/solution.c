@@ -270,17 +270,17 @@ int get_dir_inode(int img, int inode_nr) {
     return 0;
 }
 
-char* get_next_dir_name(const char* ptr, unsigned* length) {
+char* get_next_dir_name(const char* ptr) {
     char* endPtr = strpbrk(ptr + 1, "/");
     if (endPtr == NULL) {
         return NULL;
     }
 
-    *length = endPtr - ptr - 1;
+    unsigned length = endPtr - ptr - 1;
     const char* dirName;
     dirName = ptr + 1;
-    strncpy(name, dirName, *length);
-    name[*length] = '\0';
+    strncpy(name, dirName, length);
+    name[length] = '\0';
     return endPtr;
 }
 
@@ -288,12 +288,11 @@ int dump_file(int img, const char *path, int out) {
     img_fd = img;
 
     const char* charPtr = path;
-    unsigned length;
     int inodeNumb = EXT2_ROOT_INO;
 
 //    char* name = (char *)malloc(sizeof(char) * 256);
 
-    while ((charPtr = get_next_dir_name(charPtr, &length))) {
+    while ((charPtr = get_next_dir_name(charPtr))) {
 //        name[length] = '\0';
 
         file_name = name;
