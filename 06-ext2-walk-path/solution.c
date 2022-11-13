@@ -300,7 +300,11 @@ int dump_file(int img, const char *path, int out) {
         inode_numb = -1;
 
         // search for required file's inode in current directory
-        get_dir_inode(img_fd, inodeNumb);
+        int ret = get_dir_inode(img_fd, inodeNumb);
+        if (ret < 0) {
+            return ret;
+        }
+
         if (inode_numb == -1) {
             return -ENOENT;
         }
@@ -319,7 +323,5 @@ int dump_file(int img, const char *path, int out) {
     }
 
     inodeNumb = inode_numb;
-    dump_file_content(img, inodeNumb, out);
-
-    return 0;
+    return dump_file_content(img, inodeNumb, out);
 }
