@@ -190,6 +190,8 @@ int get_direct_blocks(unsigned i_block, int img) {
                 inode_numb = -2;
                 return -ENOTDIR;
             }
+        } else {
+            inode_numb = -1;
         }
     }
 
@@ -348,6 +350,8 @@ int dump_file(int img, const char *path, int out) {
     get_dir_inode(img_fd, inodeNumb);
     if (inode_numb == -1) {
         return -ENOENT;
+    } else if (inode_numb == -2) {
+        return -ENOTDIR;
     }
 
     inodeNumb = inode_numb;
