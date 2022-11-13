@@ -8,6 +8,8 @@
 #include <sys/uio.h>
 #include <unistd.h>
 #include <stdint.h>
+#include <libgen.h>
+
 
 int img_fd;
 const char* file_name;
@@ -313,7 +315,7 @@ int dump_file(int img, const char *path, int out) {
     }
 
 
-    file_name = charPtr + 1;
+    file_name = basename(path);
     file_type = 'f';
     inode_numb = -1;
 
