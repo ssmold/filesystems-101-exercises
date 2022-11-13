@@ -50,7 +50,7 @@ int copy_indirect_blocks(unsigned int i_block, int img, int out) {
     for (unsigned int i = 0; i < indirect_inode_size; i++) {
         ret = copy_direct_blocks(inode_buffer[i], img, out);
         if (ret < 0) {
-            return -errno;
+            return ret;
         }
     }
 
@@ -69,7 +69,7 @@ int copy_double_indirect_blocks(unsigned int i_block, int img, int out) {
     for (unsigned int i = 0; i < indirect_inode_size; i++) {
         ret = copy_indirect_blocks(indirect_inode_buffer[i], img, out);
         if (ret < 0) {
-            return -errno;
+            return ret;
         }
     }
 
@@ -119,13 +119,22 @@ int dump_file_content(int img, int inode_nr, int out) {
     // Copy data
     for(int i = 0; i < EXT2_N_BLOCKS; i++) {
         if (i < EXT2_NDIR_BLOCKS) {
-            copy_direct_blocks(inode.i_block[i], img, out);
+            ret = copy_direct_blocks(inode.i_block[i], img, out);
+            if (ret < 0) {
+                return ret;
+            }
         }
         else if (i == EXT2_IND_BLOCK) {
-            copy_indirect_blocks(inode.i_block[i], img, out);
+            ret = copy_indirect_blocks(inode.i_block[i], img, out);
+            if (ret < 0) {
+                return ret;
+            }
         }
         else if (i == EXT2_DIND_BLOCK) {
-            copy_double_indirect_blocks(inode.i_block[i], img, out);
+            ret = copy_double_indirect_blocks(inode.i_block[i], img, out);
+            if (ret < 0) {
+                return ret;
+            }
         }
     }
     return 0;
@@ -174,8 +183,12 @@ int get_direct_blocks(unsigned i_block, int img) {
         }
 
         // Check if found file is required one
-        if (type == file_type && (strcmp(fileName, file_name) == 0)) {
-            inode_numb = inode;
+        if (strcmp(fileName, file_name) == 0)) {
+            if (type == file_type) {
+                inode_numb = inode;
+            } else {
+                return -ENOTDIR;
+            }
         }
     }
 
@@ -187,13 +200,13 @@ int get_indirect_blocks(unsigned i_block, int img) {
     unsigned offset = i_block * BLOCK_SIZE;
     int ret = pread(img, &inode_buffer, BLOCK_SIZE, offset);
     if (ret < 0) {
-        return -errno;
+        return -ret;
     }
     unsigned indirect_inode_size = BLOCK_SIZE / 4;
     for (unsigned i = 0; i < indirect_inode_size; i++) {
         ret = get_direct_blocks(inode_buffer[i], img);
         if (ret < 0) {
-            return -errno;
+            return ret;
         }
     }
 
@@ -205,7 +218,7 @@ int get_double_indirect_blocks(unsigned i_block, int img) {
     unsigned offset = i_block * BLOCK_SIZE;
     int ret = pread(img, &indirect_inode_buffer, BLOCK_SIZE, offset);
     if (ret < 0) {
-        return -errno;
+        return ret;
     }
 
     // Indirect block entirely consists of 4 byte entries
@@ -213,7 +226,7 @@ int get_double_indirect_blocks(unsigned i_block, int img) {
     for (unsigned i = 0; i < indirect_inode_size; i++) {
         ret = get_indirect_blocks(indirect_inode_buffer[i], img);
         if (ret < 0) {
-            return -errno;
+            return ret;
         }
     }
 
@@ -221,13 +234,14 @@ int get_double_indirect_blocks(unsigned i_block, int img) {
 }
 
 int get_dir_inode(int img, int inode_nr) {
+    int ret;
     // Get the ext2 superblock
     struct ext2_super_block super;
     unsigned offset = BOOT_BLOCK_SIZE;
     int ret = pread(img, &super, sizeof(super), offset);
     offset += sizeof(super);
     if (ret < 0) {
-        return -errno;
+        return ret;
     }
 
     // Check if the file is an ext2 image
@@ -262,11 +276,20 @@ int get_dir_inode(int img, int inode_nr) {
     // Copy data
     for (int i = 0; i < EXT2_N_BLOCKS; i++) {
         if (i < EXT2_NDIR_BLOCKS) {
-            get_direct_blocks(inode.i_block[i], img);
+            ret = get_direct_blocks(inode.i_block[i], img);
+            if (ret < 0) {
+                return ret;
+            }
         } else if (i == EXT2_IND_BLOCK) {
-            get_indirect_blocks(inode.i_block[i], img);
+            ret = get_indirect_blocks(inode.i_block[i], img);
+            if (ret < 0) {
+                return ret;
+            }
         } else if (i == EXT2_DIND_BLOCK) {
-            get_double_indirect_blocks(inode.i_block[i], img);
+            ret = get_double_indirect_blocks(inode.i_block[i], img);
+            if (ret < 0) {
+                return ret;
+            }
         }
     }
     return 0;
