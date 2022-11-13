@@ -192,6 +192,7 @@ int get_direct_blocks(unsigned i_block, int img) {
         }
     }
 
+
     return 0;
 }
 
