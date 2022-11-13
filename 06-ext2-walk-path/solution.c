@@ -314,8 +314,8 @@ int dump_file(int img, const char *path, int out) {
         inodeNumb = inode_numb;
     }
 
-
-    file_name = basename(path);
+    strcpy(name, path);
+    file_name = basename(name);
     file_type = 'f';
     inode_numb = -1;
 
