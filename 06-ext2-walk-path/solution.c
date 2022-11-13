@@ -179,12 +179,6 @@ int get_direct_blocks(unsigned i_block, int img) {
                 type = 'f';
                 break;
             default:
-                if (file_type == 'f' ) {
-                    return -ENOENT;
-                } else if (file_type == 'd') {
-                    inode_numb = -2;
-                    return -ENOTDIR;
-                }
                 return -errno;
         }
 
@@ -303,7 +297,7 @@ int get_dir_inode(int img, int inode_nr) {
 }
 
 char* get_next_dir_name(const char* ptr) {
-    char* endPtr = strpbrk(ptr + 1, "/");
+    char* endPtr = strpbrk(ptr + 1, "\\/");
     if (endPtr == NULL) {
         return NULL;
     }
