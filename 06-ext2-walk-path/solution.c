@@ -10,7 +10,7 @@
 #include <stdint.h>
 
 int img_fd;
-char* file_name;
+const char* file_name;
 char file_type;
 int inode_numb;
 
@@ -73,7 +73,7 @@ int copy_double_indirect_blocks(unsigned int i_block, int img, int out) {
     return 0;
 }
 
-int dump_file(int img, int inode_nr, int out) {
+int dump_file_content(int img, int inode_nr, int out) {
 
     // Get the ext2 superblock
     struct ext2_super_block super;
@@ -171,7 +171,7 @@ int get_direct_blocks(unsigned i_block, int img) {
         }
 
         // Check if found file is required one
-        if (fileType == file_type && fileName == file_name) {
+        if (type == file_type && fileName == file_name) {
             inode_numb = inode;
         }
     }
@@ -305,8 +305,7 @@ int dump_file(int img, const char *path, int out) {
     }
 
 
-    name = charPtr + 1;
-    file_name = name;
+    file_name = charPtr + 1;
     file_type = 'f';
     inode_numb = -1;
 
@@ -316,7 +315,7 @@ int dump_file(int img, const char *path, int out) {
     }
 
     inodeNumb = inode_numb;
-    dump_file(img, inodeNumb, out);
+    dump_file_content(img, inodeNumb, out);
 
     free(name);
     return 0;
