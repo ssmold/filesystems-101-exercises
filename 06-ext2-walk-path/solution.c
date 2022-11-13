@@ -272,9 +272,14 @@ int get_dir_inode(int img, int inode_nr) {
 
 char* get_next_dir_name(const char* ptr, unsigned* length) {
     char* endPtr = strpbrk(ptr + 1, "/");
+    if (endPtr == NULL) {
+        return NULL;
+    }
+
     *length = endPtr - ptr - 1;
-    const char* dirName = ptr + 1;
-    strncpy(name, dirName, *length + 1);
+    const char* dirName;
+    dirName = ptr + 1;
+    strncpy(name, dirName, *length);
     name[*length] = '\0';
     return endPtr;
 }
