@@ -170,7 +170,7 @@ int get_direct_blocks(unsigned i_block, int img) {
 
         // Get file type
         unsigned fileType = entry->file_type;
-        char type;
+        char type ;
         switch (fileType) {
             case EXT2_FT_DIR:
                 type = 'd';
@@ -179,6 +179,12 @@ int get_direct_blocks(unsigned i_block, int img) {
                 type = 'f';
                 break;
             default:
+                if (file_type == 'f' ) {
+                    return -ENOENT;
+                } else if (file_type == 'd') {
+                    inode_numb = -2;
+                    return -ENOTDIR;
+                }
                 return -errno;
         }
 
