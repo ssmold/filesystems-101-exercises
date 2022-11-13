@@ -191,7 +191,6 @@ int get_direct_blocks(unsigned i_block, int img) {
                 return -ENOTDIR;
             }
         }
-        inode_numb = -1;
     }
 
 
