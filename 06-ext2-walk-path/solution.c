@@ -175,11 +175,13 @@ int get_direct_blocks(unsigned i_block, int img) {
             case EXT2_FT_DIR:
                 type = 'd';
                 break;
-            case EXT2_FT_REG_FILE:
+//            case EXT2_FT_REG_FILE:
+//                type = 'f';
+//                break;
+            default:
                 type = 'f';
                 break;
-            default:
-                return -errno;
+//                return -errno;
         }
 
         // Check if found file is required one
@@ -297,7 +299,7 @@ int get_dir_inode(int img, int inode_nr) {
 }
 
 char* get_next_dir_name(const char* ptr) {
-    char* endPtr = strpbrk(ptr + 1, "\\/");
+    char* endPtr = strpbrk(ptr + 1, "/");
     if (endPtr == NULL) {
         return NULL;
     }
