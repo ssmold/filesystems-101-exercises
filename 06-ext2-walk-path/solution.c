@@ -174,7 +174,7 @@ int get_direct_blocks(unsigned i_block, int img) {
         }
 
         // Check if found file is required one
-        if (type == file_type && fileName == file_name) {
+        if (type == file_type && (strcmp(fileName, file_name) == 0)) {
             inode_numb = inode;
         }
     }
@@ -292,10 +292,7 @@ int dump_file(int img, const char *path, int out) {
     const char* charPtr = path;
     int inodeNumb = EXT2_ROOT_INO;
 
-//    char* name = (char *)malloc(sizeof(char) * 256);
-
     while ((charPtr = get_next_dir_name(charPtr))) {
-//        name[length] = '\0';
 
         file_name = name;
         file_type = 'd';
@@ -304,7 +301,7 @@ int dump_file(int img, const char *path, int out) {
         // search for required file's inode in current directory
         int ret = get_dir_inode(img_fd, inodeNumb);
         if (ret < 0) {
-            return ret;
+            return -errno;
         }
 
         if (inode_numb == -1) {
