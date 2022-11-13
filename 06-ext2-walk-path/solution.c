@@ -204,7 +204,7 @@ int get_indirect_blocks(unsigned i_block, int img) {
     unsigned offset = i_block * BLOCK_SIZE;
     int ret = pread(img, &inode_buffer, BLOCK_SIZE, offset);
     if (ret < 0) {
-        return ret;
+        return -errno;
     }
     unsigned indirect_inode_size = BLOCK_SIZE / 4;
     for (unsigned i = 0; i < indirect_inode_size; i++) {
@@ -222,7 +222,7 @@ int get_double_indirect_blocks(unsigned i_block, int img) {
     unsigned offset = i_block * BLOCK_SIZE;
     int ret = pread(img, &indirect_inode_buffer, BLOCK_SIZE, offset);
     if (ret < 0) {
-        return ret;
+        return -errno;
     }
 
     // Indirect block entirely consists of 4 byte entries
@@ -244,7 +244,7 @@ int get_dir_inode(int img, int inode_nr) {
     int ret = pread(img, &super, sizeof(super), offset);
     offset += sizeof(super);
     if (ret < 0) {
-        return ret;
+        return -errno;
     }
 
     // Check if the file is an ext2 image
