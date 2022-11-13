@@ -13,7 +13,7 @@ int img_fd;
 const char* file_name;
 char file_type;
 int inode_numb;
-char* name;
+char name[FILENAME_MAX];
 
 #define BOOT_BLOCK_SIZE 1024
 unsigned BLOCK_SIZE = 1024;
@@ -280,7 +280,6 @@ char* get_next_dir_name(const char* ptr, unsigned* length, const char** name) {
 
 int dump_file(int img, const char *path, int out) {
     img_fd = img;
-	(void) out;
 
     const char* charPtr = path;
     const char** dirName = NULL;
