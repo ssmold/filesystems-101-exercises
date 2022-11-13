@@ -274,7 +274,8 @@ char* get_next_dir_name(const char* ptr, unsigned* length) {
     char* endPtr = strpbrk(ptr + 1, "/");
     *length = endPtr - ptr - 1;
     const char* dirName = ptr + 1;
-    strncpy(name, dirName, *length);
+    strncpy(name, dirName, *length + 1);
+    name[*length] = '\0';
     return endPtr;
 }
 
@@ -288,7 +289,7 @@ int dump_file(int img, const char *path, int out) {
 //    char* name = (char *)malloc(sizeof(char) * 256);
 
     while ((charPtr = get_next_dir_name(charPtr, &length))) {
-        name[length] = '\0';
+//        name[length] = '\0';
 
         file_name = name;
         file_type = 'd';
