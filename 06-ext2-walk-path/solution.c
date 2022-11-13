@@ -187,9 +187,11 @@ int get_direct_blocks(unsigned i_block, int img) {
             if (type == file_type) {
                 inode_numb = inode;
             } else {
+                inode_numb = -2;
                 return -ENOTDIR;
             }
         }
+        inode_numb = -1;
     }
 
 
@@ -201,7 +203,7 @@ int get_indirect_blocks(unsigned i_block, int img) {
     unsigned offset = i_block * BLOCK_SIZE;
     int ret = pread(img, &inode_buffer, BLOCK_SIZE, offset);
     if (ret < 0) {
-        return -ret;
+        return ret;
     }
     unsigned indirect_inode_size = BLOCK_SIZE / 4;
     for (unsigned i = 0; i < indirect_inode_size; i++) {
@@ -332,6 +334,8 @@ int dump_file(int img, const char *path, int out) {
 
         if (inode_numb == -1) {
             return -ENOENT;
+        } else if (inode_numb == -2) {
+            return -ENOTDIR;
         }
 
         inodeNumb = inode_numb;
