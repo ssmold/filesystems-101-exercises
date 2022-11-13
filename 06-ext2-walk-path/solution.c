@@ -13,6 +13,7 @@ int img_fd;
 const char* file_name;
 char file_type;
 int inode_numb;
+char* name;
 
 #define BOOT_BLOCK_SIZE 1024
 unsigned BLOCK_SIZE = 1024;
@@ -289,11 +290,10 @@ int dump_file(int img, const char *path, int out) {
 //    char* name = (char *)malloc(sizeof(char) * 256);
 
     while ((charPtr = get_next_dir_name(charPtr, &length, dirName))) {
-        stpncpy(file_name, *dirName, length);
-//        char name[FILENAME_MAX];
+        stpncpy(name, *dirName, length);
         name[length] = '\0';
 
-//        file_name = name;
+        file_name = name;
         file_type = 'd';
         inode_numb = -1;
 
