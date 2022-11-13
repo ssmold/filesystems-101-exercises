@@ -282,8 +282,6 @@ int dump_file(int img, const char *path, int out) {
     img_fd = img;
 
     const char* charPtr = path;
-    char dirName[]
-    const char** dirName = NULL;
     unsigned length;
     int inodeNumb = EXT2_ROOT_INO;
 
