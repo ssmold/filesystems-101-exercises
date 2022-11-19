@@ -17,6 +17,8 @@ int copy_direct_blocks(unsigned int i_block, int img, int out) {
     unsigned int bytes_to_copy = file_data_left < BLOCK_SIZE ? file_data_left : BLOCK_SIZE;
     int ret;
 
+    // if element of inode i_block array equals 0,
+    // then the data block should entirely consist of zeros
     if (i_block == 0) {
         memset(&buffer[0], 0, bytes_to_copy);
         ret = write(out, buffer, bytes_to_copy);
