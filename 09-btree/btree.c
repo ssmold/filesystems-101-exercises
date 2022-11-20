@@ -38,7 +38,7 @@ struct btree* btree_alloc(unsigned int L)
 
     root->isLeaf = 1;
     root->numKeys = 0;
-    root->keys = (int*)malloc(2 * L * sizeof(int));
+    root->keys = (int*)malloc( 2 * L * sizeof(int));
     root->kids = NULL;
 
     tree->L = L;
@@ -57,6 +57,7 @@ void node_free(bNode n)
         }
         free(n->kids);
     }
+    free(n->keys);
     free(n);
 }
 
