@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <assert.h>
+#include <stdbool.h>
 
 
 typedef struct node {
@@ -16,16 +17,6 @@ typedef struct btree
     unsigned int L;
     struct node* root;
 } *bTree;
-
-//bNode node_alloc(unsigned int L) {
-//    bNode node;
-//
-//    node = (bNode)calloc(sizeof(*node), 1);
-//    node->isLeaf = 0;
-//    node->numKeys =
-//
-//}
-
 
 
 struct btree* btree_alloc(unsigned int L)
@@ -112,13 +103,83 @@ int node_search(bNode node, int key)
     }
 }
 
-int btree_search(bTree tree, int key) {
-    if (tree == NULL) {
-        return 0;
-    }
+//
+//static bTree btInsertInternal(bTree b, int key, int *median)
+//{
+//    int pos;
+//    int mid;
+//    bTree b2;
+//
+//    pos = searchKey(b->numKeys, b->keys, key);
+//
+//    if(pos < b->numKeys && b->keys[pos] == key) {
+//        /* nothing to do */
+//        return 0;
+//    }
+//
+//    if(b->isLeaf) {
+//
+//        /* everybody above pos moves up one space */
+//        memmove(&b->keys[pos+1], &b->keys[pos], sizeof(*(b->keys)) * (b->numKeys - pos));
+//        b->keys[pos] = key;
+//        b->numKeys++;
+//
+//    } else {
+//
+//        /* insert in child */
+//        b2 = btInsertInternal(b->kids[pos], key, &mid);
+//
+//        /* maybe insert a new key in b */
+//        if(b2) {
+//
+//            /* every key above pos moves up one space */
+//            memmove(&b->keys[pos+1], &b->keys[pos], sizeof(*(b->keys)) * (b->numKeys - pos));
+//            /* new kid goes in pos + 1*/
+//            memmove(&b->kids[pos+2], &b->kids[pos+1], sizeof(*(b->keys)) * (b->numKeys - pos));
+//
+//            b->keys[pos] = mid;
+//            b->kids[pos+1] = b2;
+//            b->numKeys++;
+//        }
+//    }
+//
+//    /* we waste a tiny bit of space by splitting now
+//     * instead of on next insert */
+//    if(b->numKeys >= MAX_KEYS) {
+//        mid = b->numKeys/2;
+//
+//        *median = b->keys[mid];
+//
+//        /* make a new node for keys > median */
+//        /* picture is:
+//         *
+//         *      3 5 7
+//         *      A B C D
+//         *
+//         * becomes
+//         *          (5)
+//         *      3        7
+//         *      A B      C D
+//         */
+//        b2 = malloc(sizeof(*b2));
+//
+//        b2->numKeys = b->numKeys - mid - 1;
+//        b2->isLeaf = b->isLeaf;
+//
+//        memmove(b2->keys, &b->keys[mid+1], sizeof(*(b->keys)) * b2->numKeys);
+//        if(!b->isLeaf) {
+//            memmove(b2->kids, &b->kids[mid+1], sizeof(*(b->kids)) * (b2->numKeys + 1));
+//        }
+//
+//        b->numKeys = mid;
+//
+//        return b2;
+//    } else {
+//        return 0;
+//    }
+//}
 
-    return node_search(tree->root, key);
-}
+
 
 void btree_insert(struct btree *t, int x)
 {
@@ -132,12 +193,13 @@ void btree_delete(struct btree *t, int x)
 	(void) x;
 }
 
-bool btree_contains(struct btree *t, int x)
+bool btree_contains(struct btree *tree, int key)
 {
-	(void) t;
-	(void) x;
+    if (tree == NULL) {
+        return 0;
+    }
 
-	return false;
+    return node_search(tree->root, key);
 }
 
 struct btree_iter
