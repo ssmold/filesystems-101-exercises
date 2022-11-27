@@ -53,6 +53,7 @@ int get_ext2_info() {
 
     // Get block size in bytes
     BLOCK_SIZE = EXT2_MIN_BLOCK_SIZE << super.s_log_block_size;
+    return 0;
 }
 
 int copy_direct_blocks(unsigned int i_block, int img) {
@@ -449,7 +450,6 @@ char* get_next_dir_name(const char* ptr) {
 }
 
 int dump_file(int img, const char *path, int *len) {
-    img_fd = img;
 
     const char* charPtr = path;
     int inodeNumb = EXT2_ROOT_INO;
@@ -489,11 +489,11 @@ int dump_file(int img, const char *path, int *len) {
 static int read_impl(const char *path, char *buf, size_t size, off_t offset,
                      struct fuse_file_info *fi __attribute__((unused))) {
 
-    size_t len = 0;
+    int len = 0;
     dump_file(fs_img, path, &len);
 
 
-    size = len - off;
+    size = len - offset;
     memcpy(buf, file_buffer + offset, size);
     free(file_buffer);
 
@@ -505,6 +505,8 @@ static int readdir_impl(const char *path, void *buf, fuse_fill_dir_t fil, off_t 
 {
     (void) ffi;
     (void) frf;
+    (void) off;
+
     buffer = buf;
     filler = fil;
 
@@ -617,6 +619,7 @@ static int getattr_impl( const char *path, struct stat *st, struct fuse_file_inf
     if (ret < 0) {
         return ret;
     }
+    return 0;
 }
 
 
