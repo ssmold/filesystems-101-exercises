@@ -172,34 +172,49 @@ int read_direct_blocks(unsigned i_block, int img) {
             break;
         }
 
-//        struct stat *st;
-//        st->st_ino = inode;
-//        st->st_blocks = inode->i_blocks;
-//        st->st_size = inode->i_size;
-//        st->st_mode = inode->i_mode;
-//        st->st_nlink = inode->i_links_count;
-//        st->st_uid = inode->i_uid;
-//        st->st_gid = inode->i_gid;
+        int offset;
+        int ret;
+        int inode_nr = inode;
+
+        // Get the group descriptor by inode number
+        struct ext2_group_desc group_desc;
+        unsigned int group_desc_number = (inode_nr - 1) / super.s_inodes_per_group;
+        offset = BOOT_BLOCK_SIZE + BLOCK_SIZE + group_desc_number * sizeof(struct ext2_group_desc);
+        ret = pread(img, &group_desc, sizeof(group_desc), offset);
+        if (ret < 0) {
+            return -errno;
+        }
+
+        // Get the required inode
+        struct ext2_inode inode;
+        unsigned int inode_index = (inode_nr - 1) % super.s_inodes_per_group;
+        offset = group_desc.bg_inode_table * BLOCK_SIZE + (inode_index * super.s_inode_size);
+        ret = pread(img, &inode, sizeof(inode), offset);
+        if (ret < 0) {
+            return -errno;
+        }
+
 
         // Get file name
         char file_name[EXT2_NAME_LEN + 1];
         memcpy(file_name, entry->name, entry->name_len);
         file_name[entry->name_len] = '\0';
 
-        // Get file type
-        unsigned file_type = entry->file_type;
-//        char type;
-        switch (file_type) {
-            case EXT2_FT_DIR:
-                //type = 'd';
-                break;
-            case EXT2_FT_REG_FILE:
-                //type = 'f';
-                break;
-            default:
-                return -errno;
-        }
-        filler(buffer, file_name, 0, 0, FUSE_FILL_DIR_PLUS);
+
+        struct stat st;
+        st->st_ino = inode_nr;
+        st->st_mode = inode->i_mode;
+        st->st_nlink = inode->i_links_count;
+        st->st_uid = inode->i_uid;
+        st->st_gid = inode->i_gid;
+        st->st_size = inode->i_size;
+        st->st_blksize = block_size;
+        st->st_blocks = inode->i_blocks;
+        st->st_atime = inode->i_atime;
+        st->st_mtime = inode->i_mtime;
+        st->st_ctime = inode->i_ctime;
+        set_stat_info(&st, inode_nr);
+        filler(buffer, file_name, &st, 0, 0);
     }
 
     return 0;
@@ -643,7 +658,7 @@ static int open_impl(const char *path __attribute__((unused)),
 
     if ((fi->flags & O_ACCMODE) != O_RDONLY)
         return -EROFS;
-    
+
     return 0;
 }
 
