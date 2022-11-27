@@ -167,14 +167,14 @@ int read_direct_blocks(unsigned i_block, int img) {
         entry = (void *) direct_block_buffer + size;
         size += entry->rec_len;
 
-        unsigned inode = entry->inode;
-        if (inode == 0) {
+        unsigned ind = entry->inode;
+        if (ind == 0) {
             break;
         }
 
         int offset;
         int ret;
-        int inode_nr = inode;
+        int inode_nr = ind;
 
         // Get the group descriptor by inode number
         struct ext2_group_desc group_desc;
