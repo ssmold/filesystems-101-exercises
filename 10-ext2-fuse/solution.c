@@ -200,7 +200,6 @@ int read_direct_blocks(unsigned i_block, int img) {
         memcpy(file_name, entry->name, entry->name_len);
         file_name[entry->name_len] = '\0';
 
-
         struct stat st;
         st.st_ino = inode_nr;
         st.st_mode = inode.i_mode;
@@ -514,6 +513,7 @@ static int read_impl(const char *path, char *buf, size_t size, off_t offset,
 static int readdir_impl(const char *path, void *buf, fuse_fill_dir_t fil, off_t off,
                         struct fuse_file_info *ffi,  enum fuse_readdir_flags frf)
 {
+    (void) path;
     (void) ffi;
     (void) frf;
     (void) off;
@@ -521,42 +521,42 @@ static int readdir_impl(const char *path, void *buf, fuse_fill_dir_t fil, off_t 
     buffer = buf;
     filler = fil;
 
-    const char* charPtr = path;
+//    const char* charPtr = path;
     int inodeNumb = EXT2_ROOT_INO;
 
 
-
-    while ((charPtr = get_next_dir_name(charPtr))) {
-
-        file_name = name;
-        file_type = 'd';
-        inode_numb = -1;
-
-        // search for required file's inode in current directory
-        int ret = get_dir_inode(fs_img, inodeNumb);
-        if (ret < 0) {
-            return ret;
-        }
-
-        if (inode_numb == -1) {
-            return -ENOENT;
-        }
-        inodeNumb = inode_numb;
-    }
-
-    if (path[strlen(path) - 1] != '/') {
-        strcpy(name, path);
-        file_name = basename(name);
-        file_type = 'd';
-        inode_numb = -1;
-
-        get_dir_inode(fs_img, inodeNumb);
-        if (inode_numb == -1) {
-            return -ENOENT;
-        }
-
-        inodeNumb = inode_numb;
-    }
+//
+//    while ((charPtr = get_next_dir_name(charPtr))) {
+//
+//        file_name = name;
+//        file_type = 'd';
+//        inode_numb = -1;
+//
+//        // search for required file's inode in current directory
+//        int ret = get_dir_inode(fs_img, inodeNumb);
+//        if (ret < 0) {
+//            return ret;
+//        }
+//
+//        if (inode_numb == -1) {
+//            return -ENOENT;
+//        }
+//        inodeNumb = inode_numb;
+//    }
+//
+//    if (path[strlen(path) - 1] != '/') {
+//        strcpy(name, path);
+//        file_name = basename(name);
+//        file_type = 'd';
+//        inode_numb = -1;
+//
+//        get_dir_inode(fs_img, inodeNumb);
+//        if (inode_numb == -1) {
+//            return -ENOENT;
+//        }
+//
+//        inodeNumb = inode_numb;
+//    }
 
 
     return dump_content(fs_img, inodeNumb);
