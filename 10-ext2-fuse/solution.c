@@ -208,12 +208,8 @@ int read_direct_blocks(unsigned i_block, int img) {
         st->st_uid = inode->i_uid;
         st->st_gid = inode->i_gid;
         st->st_size = inode->i_size;
-        st->st_blksize = block_size;
+
         st->st_blocks = inode->i_blocks;
-        st->st_atime = inode->i_atime;
-        st->st_mtime = inode->i_mtime;
-        st->st_ctime = inode->i_ctime;
-        set_stat_info(&st, inode_nr);
         filler(buffer, file_name, &st, 0, 0);
     }
 
