@@ -522,7 +522,7 @@ static int readdir_impl(const char *path, void *buf, fuse_fill_dir_t fil, off_t 
     filler = fil;
 
 //    const char* charPtr = path;
-    int inodeNumb = EXT2_ROOT_INO;
+//    int inodeNumb = EXT2_ROOT_INO;
 
 
 //
@@ -559,7 +559,8 @@ static int readdir_impl(const char *path, void *buf, fuse_fill_dir_t fil, off_t 
 //    }
 
 
-    return dump_content(fs_img, inodeNumb);
+  //  return dump_content(fs_img, inodeNumb);
+    return 0;
 }
 
 static int set_attr(const char* path, struct stat *st) {
