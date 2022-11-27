@@ -17,7 +17,6 @@ static int fs_img;
 static struct ext2_super_block super;
 static unsigned BLOCK_SIZE = 1024;
 
-
 // for dump_content
 const char* file_name;
 char file_type;
@@ -252,23 +251,8 @@ int read_double_indirect_blocks(unsigned i_block, int img) {
 }
 
 int dump_content(int img, int inode_nr) {
-//    int offset;
-//    int ret;
-    struct ext2_super_block super;
-    unsigned offset = BOOT_BLOCK_SIZE;
-    int ret = pread(fs_img, &super, sizeof(super), offset);
-    offset += sizeof(super);
-    if (ret < 0) {
-        return -errno;
-    }
-
-    // Check if the file is an ext2 image
-    if (super.s_magic != EXT2_SUPER_MAGIC) {
-        return -errno;
-    }
-
-    // Get block size in bytes
-    BLOCK_SIZE = EXT2_MIN_BLOCK_SIZE << super.s_log_block_size;
+    int offset;
+    int ret;
 
     // Get the group descriptor by inode number
     struct ext2_group_desc group_desc;
@@ -398,23 +382,8 @@ int get_double_indirect_blocks(unsigned i_block, int img) {
 }
 
 int get_dir_inode(int img, int inode_nr) {
-//    int offset;
-//    int ret;
-    struct ext2_super_block super;
-    unsigned offset = BOOT_BLOCK_SIZE;
-    int ret = pread(fs_img, &super, sizeof(super), offset);
-    offset += sizeof(super);
-    if (ret < 0) {
-        return -errno;
-    }
-
-    // Check if the file is an ext2 image
-    if (super.s_magic != EXT2_SUPER_MAGIC) {
-        return -errno;
-    }
-
-    // Get block size in bytes
-    BLOCK_SIZE = EXT2_MIN_BLOCK_SIZE << super.s_log_block_size;
+    int offset;
+    int ret;
 
     // Get the group descriptor by inode number
     struct ext2_group_desc group_desc;
