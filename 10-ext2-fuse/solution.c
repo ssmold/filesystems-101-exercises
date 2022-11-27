@@ -37,10 +37,10 @@ int buffer_ptr = 0;
 void set_attributes() {
 }
 
-void get_ext2_info() {
+int get_ext2_info() {
     // Get the ext2 superblock
     unsigned offset = BOOT_BLOCK_SIZE;
-    int ret = pread(img, &super, sizeof(super), offset);
+    int ret = pread(fs_img, &super, sizeof(super), offset);
     offset += sizeof(super);
     if (ret < 0) {
         return -errno;
@@ -106,6 +106,8 @@ int copy_double_indirect_blocks(unsigned int i_block, int img) {
 }
 
 int dump_file_content(int img, int inode_nr) {
+    int offset;
+    int ret;
 
     // Get the group descriptor by inode number
     struct ext2_group_desc group_desc;
@@ -168,14 +170,14 @@ int read_direct_blocks(unsigned i_block, int img) {
             break;
         }
 
-        struct stat *st;
-        st->st_ino = inode;
-        st->st_blocks = inode->i_blocks;
-        st->st_size = inode->i_size;
-        st->st_mode = inode->i_mode;
-        st->st_nlink = inode->i_links_count;
-        st->st_uid = inode->i_uid;
-        st->st_gid = inode->i_gid;
+//        struct stat *st;
+//        st->st_ino = inode;
+//        st->st_blocks = inode->i_blocks;
+//        st->st_size = inode->i_size;
+//        st->st_mode = inode->i_mode;
+//        st->st_nlink = inode->i_links_count;
+//        st->st_uid = inode->i_uid;
+//        st->st_gid = inode->i_gid;
 
         // Get file name
         char file_name[EXT2_NAME_LEN + 1];
@@ -188,7 +190,7 @@ int read_direct_blocks(unsigned i_block, int img) {
         switch (file_type) {
             case EXT2_FT_DIR:
                 type = 'd';
-                filler(buffer, file_name, st, NULL, 0, FUSE_FILL_DIR_PLUS);
+                filler(buffer, file_name, 0, 0, FUSE_FILL_DIR_PLUS);
                 break;
             case EXT2_FT_REG_FILE:
                 type = 'f';
@@ -240,6 +242,8 @@ int read_double_indirect_blocks(unsigned i_block, int img) {
 }
 
 int dump_content(int img, int inode_nr) {
+    int offset;
+    int ret;
 
     // Get the group descriptor by inode number
     struct ext2_group_desc group_desc;
@@ -447,19 +451,21 @@ static int read_impl(const char *path, char *buf, size_t size, off_t offset,
                      struct fuse_file_info *fi __attribute__((unused))) {
 
     size_t len = 0;
-    dump_file(Img, path, &len);
+    dump_file_content(fs_img, path, &len);
 
 
+    size = len - off;
+    memcpy(buf, file_buffer + offset, size);
+    free(file_buffer);
 
-    if (offset < (int)strlen(text)) {
-        return (int)strlen(text) - offset;
-    }
-    return 0;
+    return size;
 }
 
 static int readdir_impl(const char *path, void *buf, fuse_fill_dir_t fil, off_t off,
                         struct fuse_file_info *ffi,  enum fuse_readdir_flags frf)
 {
+    (void) ffi;
+    (void) frf;
     buffer = buf;
     filler = fil;
 
@@ -499,6 +505,8 @@ static int readdir_impl(const char *path, void *buf, fuse_fill_dir_t fil, off_t 
 }
 
 static int set_attr(const char* path, struct stat *st) {
+    int offset;
+    int ret;
     const char* charPtr = path;
     int inodeNumb = EXT2_ROOT_INO;
 
@@ -538,7 +546,7 @@ static int set_attr(const char* path, struct stat *st) {
     struct ext2_group_desc group_desc;
     unsigned group_desc_number = (inode_nr - 1) / super.s_inodes_per_group;
     offset = BOOT_BLOCK_SIZE + BLOCK_SIZE + group_desc_number * sizeof(struct ext2_group_desc);
-    ret = pread(img, &group_desc, sizeof(group_desc), offset);
+    ret = pread(fs_img, &group_desc, sizeof(group_desc), offset);
     if (ret < 0) {
         return -errno;
     }
@@ -547,24 +555,24 @@ static int set_attr(const char* path, struct stat *st) {
     struct ext2_inode inode;
     unsigned inode_index = (inode_nr - 1) % super.s_inodes_per_group;
     offset = group_desc.bg_inode_table * BLOCK_SIZE + (inode_index * super.s_inode_size);
-    ret = pread(img, &inode, sizeof(inode), offset);
+    ret = pread(fs_img, &inode, sizeof(inode), offset);
     if (ret < 0) {
         return -errno;
     }
 
 
-    st->st_ino = inode;
-    st->st_blocks = inode->i_blocks;
-    st->st_size = inode->i_size;
-    st->st_mode = inode->i_mode;
-    st->st_nlink = inode->i_links_count;
-    st->st_uid = inode->i_uid;
-    st->st_gid = inode->i_gid;
+    st->st_ino = inode_nr;
+    st->st_blocks = inode.i_blocks;
+    st->st_size = inode.i_size;
+    st->st_mode = inode.i_mode;
+    st->st_nlink = inode.i_links_count;
+    st->st_uid = inode.i_uid;
+    st->st_gid = inode.i_gid;
 
     return 0;
 }
 
-static int getattr_impl( const char *path, struct stat *st ) {
+static int getattr_impl( const char *path, struct stat *st, struct fuse_file_info *fi __attribute__((unused))) {
     int ret;
     ret = set_attr(path, st);
     if (ret < 0) {
@@ -604,13 +612,17 @@ static const struct fuse_operations ext2_ops = {
          // Write operations
         .write = write_impl,
         .open = open_impl,
-        .create_impl,
+        .create = create_impl,
 };
 
 int ext2fuse(int img, const char *mntp)
 {
+    int ret;
 	fs_img = img;
-    get_ext2_info();
+    ret = get_ext2_info();
+    if (ret < 0) {
+        return ret;
+    }
 
 	char *argv[] = {"exercise", "-f", (char *)mntp, NULL};
 	return fuse_main(3, argv, &ext2_ops, NULL);
