@@ -203,13 +203,13 @@ int read_direct_blocks(unsigned i_block, int img) {
 
         struct stat st;
         st.st_ino = inode_nr;
-        st.st_mode = inode->i_mode;
-        st.st_nlink = inode->i_links_count;
-        st.st_uid = inode->i_uid;
-        st.st_gid = inode->i_gid;
-        st.st_size = inode->i_size;
+        st.st_mode = inode.i_mode;
+        st.st_nlink = inode.i_links_count;
+        st.st_uid = inode.i_uid;
+        st.st_gid = inode.i_gid;
+        st.st_size = inode.i_size;
 
-        st.st_blocks = inode->i_blocks;
+        st.st_blocks = inode.i_blocks;
         filler(buffer, file_name, &st, 0, 0);
     }
 
