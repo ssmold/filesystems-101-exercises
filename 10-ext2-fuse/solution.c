@@ -477,7 +477,7 @@ int dump_file(int img, const char *path, int *len) {
     file_type = 'f';
     inode_numb = -1;
 
-    get_dir_inode(img_fd, inodeNumb);
+    get_dir_inode(img, inodeNumb);
     if (inode_numb == -1) {
         return -ENOENT;
     }
