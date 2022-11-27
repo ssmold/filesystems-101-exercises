@@ -105,7 +105,7 @@ int copy_double_indirect_blocks(unsigned int i_block, int img) {
     return 0;
 }
 
-int dump_file_content(int img, int inode_nr) {
+int dump_file_content(int img, int inode_nr, int* len) {
     int offset;
     int ret;
 
@@ -129,6 +129,7 @@ int dump_file_content(int img, int inode_nr) {
 
     // Get the file size
     file_data_left = inode.i_size;
+    *len = inode.i_size;
     file_buffer = (char*)malloc(file_data_left);
     buffer_ptr = 0;
 
@@ -186,14 +187,14 @@ int read_direct_blocks(unsigned i_block, int img) {
 
         // Get file type
         unsigned file_type = entry->file_type;
-        char type;
+//        char type;
         switch (file_type) {
             case EXT2_FT_DIR:
-                type = 'd';
+                //type = 'd';
                 filler(buffer, file_name, 0, 0, FUSE_FILL_DIR_PLUS);
                 break;
             case EXT2_FT_REG_FILE:
-                type = 'f';
+                //type = 'f';
                 break;
             default:
                 return -errno;
@@ -447,11 +448,49 @@ char* get_next_dir_name(const char* ptr) {
     return endPtr;
 }
 
+int dump_file(int img, const char *path, int *len) {
+    img_fd = img;
+
+    const char* charPtr = path;
+    int inodeNumb = EXT2_ROOT_INO;
+
+    while ((charPtr = get_next_dir_name(charPtr))) {
+
+        file_name = name;
+        file_type = 'd';
+        inode_numb = -1;
+
+        // search for required file's inode in current directory
+        int ret = get_dir_inode(img_fd, inodeNumb);
+        if (ret < 0) {
+            return ret;
+        }
+
+        if (inode_numb == -1) {
+            return -ENOENT;
+        }
+        inodeNumb = inode_numb;
+    }
+
+    strcpy(name, path);
+    file_name = basename(name);
+    file_type = 'f';
+    inode_numb = -1;
+
+    get_dir_inode(img_fd, inodeNumb);
+    if (inode_numb == -1) {
+        return -ENOENT;
+    }
+
+    inodeNumb = inode_numb;
+    return dump_file_content(img, inodeNumb, len);
+}
+
 static int read_impl(const char *path, char *buf, size_t size, off_t offset,
                      struct fuse_file_info *fi __attribute__((unused))) {
 
     size_t len = 0;
-    dump_file_content(fs_img, path, &len);
+    dump_file(fs_img, path, &len);
 
 
     size = len - off;
