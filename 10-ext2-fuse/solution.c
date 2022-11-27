@@ -564,7 +564,7 @@ static int set_attr(const char* path, struct stat *st) {
         }
 
         if (inode_numb == -1) {
-            return -ENOENT;
+            return -ESRCH;
         }
         inodeNumb = inode_numb;
     }
@@ -576,13 +576,13 @@ static int set_attr(const char* path, struct stat *st) {
 
     get_dir_inode(fs_img, inodeNumb);
     if (inode_numb == -1) {
-        return -ENOENT;
+        return -ESRCH;
     }
 
     int inode_nr = inode_numb;
 
     if (inode_nr < 0)
-        return -ENOENT;
+        return -ESRCH;
 
     struct ext2_group_desc group_desc;
     unsigned group_desc_number = (inode_nr - 1) / super.s_inodes_per_group;
