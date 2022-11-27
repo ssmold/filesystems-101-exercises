@@ -467,7 +467,7 @@ int dump_file(int img, const char *path, int *len) {
         }
 
         if (inode_numb == -1) {
-            return -EPERM;
+            return -ENOENT;
         }
         inodeNumb = inode_numb;
     }
@@ -479,7 +479,7 @@ int dump_file(int img, const char *path, int *len) {
 
     get_dir_inode(img, inodeNumb);
     if (inode_numb == -1) {
-        return -EPERM;
+        return -ENOENT;
     }
 
     inodeNumb = inode_numb;
@@ -526,7 +526,7 @@ static int readdir_impl(const char *path, void *buf, fuse_fill_dir_t fil, off_t 
         }
 
         if (inode_numb == -1) {
-            return -EPERM;
+            return -ENOENT;
         }
         inodeNumb = inode_numb;
     }
@@ -538,7 +538,7 @@ static int readdir_impl(const char *path, void *buf, fuse_fill_dir_t fil, off_t 
 //
 //    get_dir_inode(fs_img, inodeNumb);
 //    if (inode_numb == -1) {
-//        return -EPERM;
+//        return -ENOENT;
 //    }
 //
 //    inodeNumb = inode_numb;
@@ -564,7 +564,7 @@ static int set_attr(const char* path, struct stat *st) {
         }
 
         if (inode_numb == -1) {
-            return -EPERM;
+            return -ENOENT;
         }
         inodeNumb = inode_numb;
     }
@@ -576,13 +576,13 @@ static int set_attr(const char* path, struct stat *st) {
 
     get_dir_inode(fs_img, inodeNumb);
     if (inode_numb == -1) {
-        return -EPERM;
+        return -ENOENT;
     }
 
     int inode_nr = inode_numb;
 
     if (inode_nr < 0)
-        return -EPERM;
+        return -ENOENT;
 
     struct ext2_group_desc group_desc;
     unsigned group_desc_number = (inode_nr - 1) / super.s_inodes_per_group;
