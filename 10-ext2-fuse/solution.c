@@ -531,17 +531,17 @@ static int readdir_impl(const char *path, void *buf, fuse_fill_dir_t fil, off_t 
         inodeNumb = inode_numb;
     }
 
-    strcpy(name, path);
-    file_name = basename(name);
-    file_type = 'd';
-    inode_numb = -1;
-
-    get_dir_inode(fs_img, inodeNumb);
-    if (inode_numb == -1) {
-        return -ENOENT;
-    }
-
-    inodeNumb = inode_numb;
+//    strcpy(name, path);
+//    file_name = basename(name);
+//    file_type = 'd';
+//    inode_numb = -1;
+//
+//    get_dir_inode(fs_img, inodeNumb);
+//    if (inode_numb == -1) {
+//        return -ENOENT;
+//    }
+//
+//    inodeNumb = inode_numb;
     return dump_content(fs_img, inodeNumb);
 }
 
