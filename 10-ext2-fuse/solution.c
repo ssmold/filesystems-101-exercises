@@ -513,6 +513,8 @@ static int readdir_impl(const char *path, void *buf, fuse_fill_dir_t fil, off_t 
     const char* charPtr = path;
     int inodeNumb = EXT2_ROOT_INO;
 
+
+
     while ((charPtr = get_next_dir_name(charPtr))) {
 
         file_name = name;
@@ -531,17 +533,21 @@ static int readdir_impl(const char *path, void *buf, fuse_fill_dir_t fil, off_t 
         inodeNumb = inode_numb;
     }
 
-//    strcpy(name, path);
-//    file_name = basename(name);
-//    file_type = 'd';
-//    inode_numb = -1;
-//
-//    get_dir_inode(fs_img, inodeNumb);
-//    if (inode_numb == -1) {
-//        return -ENOENT;
-//    }
-//
-//    inodeNumb = inode_numb;
+    if (path[strlen(path) - 1] != '/') {
+        strcpy(name, path);
+        file_name = basename(name);
+        file_type = 'd';
+        inode_numb = -1;
+
+        get_dir_inode(fs_img, inodeNumb);
+        if (inode_numb == -1) {
+            return -ENOENT;
+        }
+
+        inodeNumb = inode_numb;
+    }
+
+
     return dump_content(fs_img, inodeNumb);
 }
 
@@ -637,6 +643,10 @@ static int open_impl(const char *path __attribute__((unused)),
 
     if ((fi->flags & O_ACCMODE) != O_RDONLY)
         return -EROFS;
+
+
+    int inode_num = check_path_if_exists(Img, path);
+
     return 0;
 }
 
