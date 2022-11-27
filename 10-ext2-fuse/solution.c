@@ -34,8 +34,6 @@ char* file_buffer;
 int buffer_ptr = 0;
 
 
-void set_attributes() {
-}
 
 int get_ext2_info() {
     // Get the ext2 superblock
@@ -254,8 +252,23 @@ int read_double_indirect_blocks(unsigned i_block, int img) {
 }
 
 int dump_content(int img, int inode_nr) {
-    int offset;
-    int ret;
+//    int offset;
+//    int ret;
+    struct ext2_super_block super;
+    unsigned offset = BOOT_BLOCK_SIZE;
+    int ret = pread(fs_img, &super, sizeof(super), offset);
+    offset += sizeof(super);
+    if (ret < 0) {
+        return -errno;
+    }
+
+    // Check if the file is an ext2 image
+    if (super.s_magic != EXT2_SUPER_MAGIC) {
+        return -errno;
+    }
+
+    // Get block size in bytes
+    BLOCK_SIZE = EXT2_MIN_BLOCK_SIZE << super.s_log_block_size;
 
     // Get the group descriptor by inode number
     struct ext2_group_desc group_desc;
@@ -385,10 +398,11 @@ int get_double_indirect_blocks(unsigned i_block, int img) {
 }
 
 int get_dir_inode(int img, int inode_nr) {
-    // Get the ext2 superblock
+//    int offset;
+//    int ret;
     struct ext2_super_block super;
     unsigned offset = BOOT_BLOCK_SIZE;
-    int ret = pread(img, &super, sizeof(super), offset);
+    int ret = pread(fs_img, &super, sizeof(super), offset);
     offset += sizeof(super);
     if (ret < 0) {
         return -errno;
@@ -513,7 +527,6 @@ static int read_impl(const char *path, char *buf, size_t size, off_t offset,
 static int readdir_impl(const char *path, void *buf, fuse_fill_dir_t fil, off_t off,
                         struct fuse_file_info *ffi,  enum fuse_readdir_flags frf)
 {
-    (void) path;
     (void) ffi;
     (void) frf;
     (void) off;
@@ -521,46 +534,43 @@ static int readdir_impl(const char *path, void *buf, fuse_fill_dir_t fil, off_t 
     buffer = buf;
     filler = fil;
 
-//    const char* charPtr = path;
-//    int inodeNumb = EXT2_ROOT_INO;
+    const char* charPtr = path;
+    int inodeNumb = EXT2_ROOT_INO;
+
+    while ((charPtr = get_next_dir_name(charPtr))) {
+
+        file_name = name;
+        file_type = 'd';
+        inode_numb = -1;
+
+        // search for required file's inode in current directory
+        int ret = get_dir_inode(fs_img, inodeNumb);
+        if (ret < 0) {
+            return ret;
+        }
+
+        if (inode_numb == -1) {
+            return -ENOENT;
+        }
+        inodeNumb = inode_numb;
+    }
+
+    if (path[strlen(path) - 1] != '/') {
+        strcpy(name, path);
+        file_name = basename(name);
+        file_type = 'd';
+        inode_numb = -1;
+
+        get_dir_inode(fs_img, inodeNumb);
+        if (inode_numb == -1) {
+            return -ENOENT;
+        }
+
+        inodeNumb = inode_numb;
+    }
 
 
-//
-//    while ((charPtr = get_next_dir_name(charPtr))) {
-//
-//        file_name = name;
-//        file_type = 'd';
-//        inode_numb = -1;
-//
-//        // search for required file's inode in current directory
-//        int ret = get_dir_inode(fs_img, inodeNumb);
-//        if (ret < 0) {
-//            return ret;
-//        }
-//
-//        if (inode_numb == -1) {
-//            return -ENOENT;
-//        }
-//        inodeNumb = inode_numb;
-//    }
-//
-//    if (path[strlen(path) - 1] != '/') {
-//        strcpy(name, path);
-//        file_name = basename(name);
-//        file_type = 'd';
-//        inode_numb = -1;
-//
-//        get_dir_inode(fs_img, inodeNumb);
-//        if (inode_numb == -1) {
-//            return -ENOENT;
-//        }
-//
-//        inodeNumb = inode_numb;
-//    }
-
-
-  //  return dump_content(fs_img, inodeNumb);
-    return 0;
+    return dump_content(fs_img, inodeNumb);
 }
 
 static int set_attr(const char* path, struct stat *st) {
@@ -586,15 +596,18 @@ static int set_attr(const char* path, struct stat *st) {
         }
         inodeNumb = inode_numb;
     }
+    if (path[strlen(path) - 1] != '/') {
+        strcpy(name, path);
+        file_name = basename(name);
+        file_type = 'f';
+        inode_numb = -1;
 
-    strcpy(name, path);
-    file_name = basename(name);
-    file_type = 'd';
-    inode_numb = -1;
+        get_dir_inode(fs_img, inodeNumb);
+        if (inode_numb == -1) {
+            return -ENOENT;
+        }
 
-    get_dir_inode(fs_img, inodeNumb);
-    if (inode_numb == -1) {
-        return -ENOENT;
+        inodeNumb = inode_numb;
     }
 
     int inode_nr = inode_numb;
