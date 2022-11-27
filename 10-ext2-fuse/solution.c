@@ -643,10 +643,7 @@ static int open_impl(const char *path __attribute__((unused)),
 
     if ((fi->flags & O_ACCMODE) != O_RDONLY)
         return -EROFS;
-
-
-    int inode_num = check_path_if_exists(Img, path);
-
+    
     return 0;
 }
 
