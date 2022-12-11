@@ -133,17 +133,17 @@ func (s *Server) ParallelHash(ctx context.Context, req *pb.ParHashReq) (res *pb.
 
 	r := NewRoundRobin(backends)
 	for i, bytes := range req.Data {
+		data := bytes
+		idx := i
 		wg.Go(ctx, func(ctx context.Context) error {
-			hashReq := &hashpb.HashReq{Data: bytes}
-			s.m.Lock()
+			hashReq := &hashpb.HashReq{Data: data}
 			res, err := r.Next().Hash(ctx, hashReq)
-			s.m.Unlock()
 			if err != nil {
 				return err
 			}
 
 			s.m.Lock()
-			hashes[i] = res.Hash
+			hashes[idx] = res.Hash
 			s.m.Unlock()
 			return nil
 		})
