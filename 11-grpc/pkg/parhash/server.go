@@ -115,6 +115,8 @@ func (s *Server) Stop() {
 }
 
 func (s *Server) ParallelHash(ctx context.Context, req *pb.ParHashReq) (res *pb.ParHashResp, err error) {
+	defer func() { err = errors.Wrap(err, "ParallelHash()") }()
+
 	wg := workgroup.New(workgroup.Config{Sem: s.sem})
 	hashes := make([][]byte, len(req.Data))
 	conns := make([]*grpc.ClientConn, len(s.conf.BackendAddrs))
