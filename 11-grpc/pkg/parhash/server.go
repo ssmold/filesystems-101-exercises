@@ -123,21 +123,12 @@ func (s *Server) ParallelHash(ctx context.Context, req *pb.ParHashReq) (res *pb.
 	conns := make([]*grpc.ClientConn, len(s.conf.BackendAddrs))
 	backends := make([]hashpb.HashSvcClient, len(s.conf.BackendAddrs))
 
-	// for i := range backends {
-	// 	if conns[i], err = grpc.Dial(s.conf.BackendAddrs[i], grpc.WithInsecure()); err != nil {
-	// 		return &pb.ParHashResp{}, err
-	// 	}
-	// 	defer conns[i].Close()
-
-	// 	backends[i] = hashpb.NewHashSvcClient(conns[i])
-	// }
-
-	for i, addr := range s.conf.BackendAddrs {
-		conns[i], err = grpc.Dial(addr, grpc.WithInsecure())
-		if err != nil {
+	for i := range backends {
+		if conns[i], err = grpc.Dial(s.conf.BackendAddrs[i], grpc.WithInsecure()); err != nil {
 			return &pb.ParHashResp{}, err
 		}
 		defer conns[i].Close()
+
 		backends[i] = hashpb.NewHashSvcClient(conns[i])
 	}
 
@@ -147,9 +138,7 @@ func (s *Server) ParallelHash(ctx context.Context, req *pb.ParHashReq) (res *pb.
 		wg.Go(ctx, func(ctx context.Context) error {
 			hashReq := &hashpb.HashReq{Data: data}
 			getIndex := atomic.AddUint32(&s.cur, 1)
-			s.m.Lock()
 			final := (int(getIndex) - 1) % len(backends)
-			s.m.Unlock()
 			res, err := backends[final].Hash(ctx, hashReq)
 			// backend := r.Next()
 			// res, err := backend.Hash(ctx, hashReq)
