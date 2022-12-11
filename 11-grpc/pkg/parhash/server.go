@@ -20,8 +20,8 @@ type roundRobin struct {
 	next     uint32
 }
 
-func NewRoundRobin(max int) *roundRobin {
-	return &roundRobin{
+func NewRoundRobin(max int) roundRobin {
+	return roundRobin{
 		maxIndex: max,
 	}
 }
@@ -68,7 +68,7 @@ type Server struct {
 	stop context.CancelFunc
 	l    net.Listener
 	wg   sync.WaitGroup
-	r    *roundRobin
+	r    roundRobin
 }
 
 func New(conf Config) *Server {
@@ -141,8 +141,8 @@ func (s *Server) ParallelHash(ctx context.Context, req *pb.ParHashReq) (res *pb.
 			// final := (int(getIndex) - 1) % len(backends)
 			s.m.Lock()
 			final := s.r.Next()
-			res, err := backends[final].Hash(ctx, hashReq)
 			s.m.Unlock()
+			res, err := backends[final].Hash(ctx, hashReq)
 			// backend := r.Next()
 			// res, err := backend.Hash(ctx, hashReq)
 			// res, err := r.Next().Hash(ctx, hashReq)
