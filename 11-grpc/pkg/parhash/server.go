@@ -20,10 +20,10 @@ type roundRobin struct {
 	next     uint32
 }
 
-func NewRoundRobin(clients []hashpb.HashSvcClient) (*roundRobin, error) {
+func NewRoundRobin(clients []hashpb.HashSvcClient) *roundRobin {
 	return &roundRobin{
 		backends: clients,
-	}, nil
+	}
 }
 
 func (r *roundRobin) Next() hashpb.HashSvcClient {
@@ -131,11 +131,7 @@ func (s *Server) ParallelHash(ctx context.Context, req *pb.ParHashReq) (res *pb.
 		clients[i] = hashpb.NewHashSvcClient(conns[i])
 	}
 
-	r, err := NewRoundRobin(clients)
-	if err != nil {
-		return &pb.ParHashResp{}, err
-	}
-
+	r := NewRoundRobin(clients)
 	for i, bytes := range req.Data {
 		wg.Go(ctx, func(ctx context.Context) error {
 			hashReq := &hashpb.HashReq{Data: bytes}
@@ -151,8 +147,5 @@ func (s *Server) ParallelHash(ctx context.Context, req *pb.ParHashReq) (res *pb.
 		})
 	}
 
-	if err := wg.Wait(); err != nil {
-		return &pb.ParHashResp{Hashes: hashes}, err
-	}
-	return &pb.ParHashResp{Hashes: hashes}, nil
+	return &pb.ParHashResp{Hashes: hashes}, wg.Wait()
 }
