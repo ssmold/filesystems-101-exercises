@@ -132,7 +132,7 @@ func (s *Server) ParallelHash(ctx context.Context, req *pb.ParHashReq) (res *pb.
 	}
 
 	r, err := NewRoundRobin(clients)
-	if r != nil {
+	if err != nil {
 		return &pb.ParHashResp{}, err
 	}
 
