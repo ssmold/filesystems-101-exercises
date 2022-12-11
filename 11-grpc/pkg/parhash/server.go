@@ -135,16 +135,17 @@ func (s *Server) ParallelHash(ctx context.Context, req *pb.ParHashReq) (res *pb.
 	}
 
 	for i, bytes := range req.Data {
+		idx := i
+		data := bytes
 		wg.Go(ctx, func(ctx context.Context) error {
-
-			hashReq := &hashpb.HashReq{Data: bytes}
+			hashReq := &hashpb.HashReq{Data: data}
 			res, err := r.Next().Hash(ctx, hashReq)
 			if err != nil {
 				return err
 			}
 
 			s.m.Lock()
-			hashes[i] = res.Hash
+			hashes[idx] = res.Hash
 			s.m.Unlock()
 			return nil
 		})
