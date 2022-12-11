@@ -26,7 +26,7 @@ func NewRoundRobin(max int) roundRobin {
 	}
 }
 
-func (r *roundRobin) Next() int {
+func (r *roundRobin) NextIndex() int {
 	current := atomic.AddUint32(&r.next, 1)
 	return (int(current) - 1) % r.maxIndex
 }
@@ -139,13 +139,8 @@ func (s *Server) ParallelHash(ctx context.Context, req *pb.ParHashReq) (res *pb.
 		idx := i
 		wg.Go(ctx, func(ctx context.Context) error {
 			hashReq := &hashpb.HashReq{Data: data}
-			// getIndex := atomic.AddUint32(&s.cur, 1)
-			// final := (int(getIndex) - 1) % len(backends)
-			final := s.r.Next()
-			res, err := backends[final].Hash(ctx, hashReq)
-			// backend := r.Next()
-			// res, err := backend.Hash(ctx, hashReq)
-			// res, err := r.Next().Hash(ctx, hashReq)
+			backendID := s.r.NextIndex()
+			res, err := backends[backendID].Hash(ctx, hashReq)
 			if err != nil {
 				return err
 			}
