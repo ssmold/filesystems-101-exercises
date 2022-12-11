@@ -137,11 +137,11 @@ func (s *Server) ParallelHash(ctx context.Context, req *pb.ParHashReq) (res *pb.
 		idx := i
 		wg.Go(ctx, func(ctx context.Context) error {
 			hashReq := &hashpb.HashReq{Data: data}
-			// getIndex := atomic.AddUint32(&s.cur, 1)
-			// final := (int(getIndex) - 1) % len(backends)
-			s.m.Lock()
-			final := s.r.Next()
-			s.m.Unlock()
+			getIndex := atomic.AddUint32(&s.cur, 1)
+			final := (int(getIndex) - 1) % len(backends)
+			// s.m.Lock()
+			// final := s.r.Next()
+			// s.m.Unlock()
 			res, err := backends[final].Hash(ctx, hashReq)
 			// backend := r.Next()
 			// res, err := backend.Hash(ctx, hashReq)
