@@ -121,7 +121,7 @@ func (s *Server) ParallelHash(ctx context.Context, req *pb.ParHashReq) (res *pb.
 	clients := make([]hashpb.HashSvcClient, len(s.conf.BackendAddrs))
 
 	for i := range clients {
-		if conns[i], err = grpc.Dial(s.conf.BackendAddrs[i]); err != nil {
+		if conns[i], err = grpc.Dial(s.conf.BackendAddrs[i], grpc.WithInsecure()); err != nil {
 			return &pb.ParHashResp{}, err
 		}
 		defer conns[i].Close()
