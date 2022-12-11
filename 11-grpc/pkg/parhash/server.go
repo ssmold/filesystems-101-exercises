@@ -62,7 +62,6 @@ type Config struct {
 type Server struct {
 	conf Config
 
-	cur  uint32
 	m    sync.Mutex
 	sem  *semaphore.Weighted
 	stop context.CancelFunc
