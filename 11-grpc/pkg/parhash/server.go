@@ -62,6 +62,7 @@ type Config struct {
 type Server struct {
 	conf Config
 
+	cur  uint32
 	m    sync.Mutex
 	sem  *semaphore.Weighted
 	stop context.CancelFunc
@@ -147,9 +148,12 @@ func (s *Server) ParallelHash(ctx context.Context, req *pb.ParHashReq) (res *pb.
 		wg.Go(ctx, func(ctx context.Context) error {
 			hashReq := &hashpb.HashReq{Data: data}
 			s.m.Lock()
-			backend := r.Next()
-			res, err := backend.Hash(ctx, hashReq)
+			getIndex := atomic.AddUint32(&s.cur, 1)
+			final := (int(getIndex) - 1) % len(backends)
 			s.m.Unlock()
+			res, err := backends[final].Hash(ctx, hashReq)
+			// backend := r.Next()
+			// res, err := backend.Hash(ctx, hashReq)
 			// res, err := r.Next().Hash(ctx, hashReq)
 			if err != nil {
 				return err
