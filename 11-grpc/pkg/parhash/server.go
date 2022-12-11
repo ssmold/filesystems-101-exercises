@@ -120,18 +120,18 @@ func (s *Server) ParallelHash(ctx context.Context, req *pb.ParHashReq) (res *pb.
 	wg := workgroup.New(workgroup.Config{Sem: s.sem})
 	hashes := make([][]byte, len(req.Data))
 	conns := make([]*grpc.ClientConn, len(s.conf.BackendAddrs))
-	clients := make([]hashpb.HashSvcClient, len(s.conf.BackendAddrs))
+	backends := make([]hashpb.HashSvcClient, len(s.conf.BackendAddrs))
 
-	for i := range clients {
+	for i := range backends {
 		if conns[i], err = grpc.Dial(s.conf.BackendAddrs[i], grpc.WithInsecure()); err != nil {
 			return &pb.ParHashResp{}, err
 		}
 		defer conns[i].Close()
 
-		clients[i] = hashpb.NewHashSvcClient(conns[i])
+		backends[i] = hashpb.NewHashSvcClient(conns[i])
 	}
 
-	r := NewRoundRobin(clients)
+	r := NewRoundRobin(backends)
 	for i, bytes := range req.Data {
 		wg.Go(ctx, func(ctx context.Context) error {
 			hashReq := &hashpb.HashReq{Data: bytes}
