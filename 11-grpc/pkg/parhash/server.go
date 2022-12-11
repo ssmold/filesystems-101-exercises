@@ -150,7 +150,7 @@ func (s *Server) ParallelHash(ctx context.Context, req *pb.ParHashReq) (res *pb.
 	}
 
 	if err := wg.Wait(); err != nil {
-		return &pb.ParHashResp{}, err
+		return &pb.ParHashResp{Hashes: hashes}, err
 	}
 	return &pb.ParHashResp{Hashes: hashes}, nil
 }
