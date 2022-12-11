@@ -68,7 +68,7 @@ type Server struct {
 	stop context.CancelFunc
 	l    net.Listener
 	wg   sync.WaitGroup
-	// r    roundRobin
+	r    roundRobin
 }
 
 func New(conf Config) *Server {
