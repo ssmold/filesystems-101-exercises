@@ -72,9 +72,12 @@ type Server struct {
 }
 
 func New(conf Config) *Server {
+	r := NewRoundRobin(len(conf.BackendAddrs))
+
 	return &Server{
 		conf: conf,
 		sem:  semaphore.NewWeighted(int64(conf.Concurrency)),
+		r:    r,
 	}
 }
 
@@ -130,18 +133,17 @@ func (s *Server) ParallelHash(ctx context.Context, req *pb.ParHashReq) (res *pb.
 
 		backends[i] = hashpb.NewHashSvcClient(conns[i])
 	}
-	// s.r = NewRoundRobin(len(backends))
 
 	for i, bytes := range req.Data {
 		data := bytes
 		idx := i
 		wg.Go(ctx, func(ctx context.Context) error {
 			hashReq := &hashpb.HashReq{Data: data}
-			getIndex := atomic.AddUint32(&s.cur, 1)
-			final := (int(getIndex) - 1) % len(backends)
-			// s.m.Lock()
-			// final := s.r.Next()
-			// s.m.Unlock()
+			// getIndex := atomic.AddUint32(&s.cur, 1)
+			// final := (int(getIndex) - 1) % len(backends)
+			s.m.Lock()
+			final := s.r.Next()
+			s.m.Unlock()
 			res, err := backends[final].Hash(ctx, hashReq)
 			// backend := r.Next()
 			// res, err := backend.Hash(ctx, hashReq)
