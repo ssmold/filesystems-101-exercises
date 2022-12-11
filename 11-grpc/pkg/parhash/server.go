@@ -16,19 +16,19 @@ import (
 )
 
 type roundRobin struct {
-	backends []hashpb.HashSvcClient
+	maxIndex int
 	next     uint32
 }
 
-func NewRoundRobin(clients []hashpb.HashSvcClient) *roundRobin {
+func NewRoundRobin(max int) *roundRobin {
 	return &roundRobin{
-		backends: clients,
+		maxIndex: max,
 	}
 }
 
-func (r *roundRobin) Next() hashpb.HashSvcClient {
+func (r *roundRobin) Next() int {
 	current := atomic.AddUint32(&r.next, 1)
-	return r.backends[(int(current)-1)%len(r.backends)]
+	return (int(current) - 1) % r.maxIndex
 }
 
 type Config struct {
@@ -68,6 +68,7 @@ type Server struct {
 	stop context.CancelFunc
 	l    net.Listener
 	wg   sync.WaitGroup
+	r    *roundRobin
 }
 
 func New(conf Config) *Server {
@@ -116,8 +117,6 @@ func (s *Server) Stop() {
 }
 
 func (s *Server) ParallelHash(ctx context.Context, req *pb.ParHashReq) (res *pb.ParHashResp, err error) {
-	defer func() { err = errors.Wrap(err, "ParallelHash()") }()
-
 	wg := workgroup.New(workgroup.Config{Sem: s.sem})
 	hashes := make([][]byte, len(req.Data))
 	conns := make([]*grpc.ClientConn, len(s.conf.BackendAddrs))
@@ -130,15 +129,17 @@ func (s *Server) ParallelHash(ctx context.Context, req *pb.ParHashReq) (res *pb.
 		defer conns[i].Close()
 
 		backends[i] = hashpb.NewHashSvcClient(conns[i])
-	}d
+	}
+	s.r = NewRoundRobin(len(backends))
 
 	for i, bytes := range req.Data {
 		data := bytes
 		idx := i
 		wg.Go(ctx, func(ctx context.Context) error {
 			hashReq := &hashpb.HashReq{Data: data}
-			getIndex := atomic.AddUint32(&s.cur, 1)
-			final := (int(getIndex) - 1) % len(backends)
+			// getIndex := atomic.AddUint32(&s.cur, 1)
+			// final := (int(getIndex) - 1) % len(backends)
+			final := s.r.Next()
 			res, err := backends[final].Hash(ctx, hashReq)
 			// backend := r.Next()
 			// res, err := backend.Hash(ctx, hashReq)
