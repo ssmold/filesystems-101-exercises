@@ -27,8 +27,8 @@ func NewRoundRobin(clients []hashpb.HashSvcClient) (*roundRobin, error) {
 }
 
 func (r *roundRobin) Next() hashpb.HashSvcClient {
-	current := atomic.AddUint32(&r.next, 1) - 1
-	return r.backends[int(current)%len(r.backends)]
+	current := atomic.AddUint32(&r.next, 1)
+	return r.backends[(int(current)-1)%len(r.backends)]
 }
 
 type Config struct {
