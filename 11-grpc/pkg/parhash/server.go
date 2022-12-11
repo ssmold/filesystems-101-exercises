@@ -137,8 +137,8 @@ func (s *Server) ParallelHash(ctx context.Context, req *pb.ParHashReq) (res *pb.
 		idx := i
 		wg.Go(ctx, func(ctx context.Context) error {
 			hashReq := &hashpb.HashReq{Data: data}
-			backend := r.Next()
 			s.m.Lock()
+			backend := r.Next()
 			res, err := backend.Hash(ctx, hashReq)
 			s.m.Unlock()
 			// res, err := r.Next().Hash(ctx, hashReq)
