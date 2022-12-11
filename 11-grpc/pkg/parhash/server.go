@@ -68,7 +68,7 @@ type Server struct {
 	stop context.CancelFunc
 	l    net.Listener
 	wg   sync.WaitGroup
-	r    roundRobin
+	// r    roundRobin
 }
 
 func New(conf Config) *Server {
@@ -130,7 +130,7 @@ func (s *Server) ParallelHash(ctx context.Context, req *pb.ParHashReq) (res *pb.
 
 		backends[i] = hashpb.NewHashSvcClient(conns[i])
 	}
-	s.r = NewRoundRobin(len(backends))
+	// s.r = NewRoundRobin(len(backends))
 
 	for i, bytes := range req.Data {
 		data := bytes
