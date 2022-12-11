@@ -130,7 +130,7 @@ func (s *Server) ParallelHash(ctx context.Context, req *pb.ParHashReq) (res *pb.
 		defer conns[i].Close()
 
 		backends[i] = hashpb.NewHashSvcClient(conns[i])
-	}
+	}d
 
 	for i, bytes := range req.Data {
 		data := bytes
